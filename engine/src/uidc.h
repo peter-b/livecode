@@ -626,7 +626,7 @@ public:
     //   engine sent messages. The former are subject to a limit to stop pending message queue overflow.
     bool addusermessage(MCObject *optr, MCNameRef name, real8 time, MCParameter *params);
     
-	Boolean handlepending(real8 &curtime, real8 &eventtime, Boolean dispatch);
+    Boolean handlepending(real8 &curtime, real8 &eventtime, Boolean dispatch, Boolean p_allow_idle = False);
 	Boolean getlockmoves() const;
 	void setlockmoves(Boolean b);
 	void addmove(MCObject *optr, MCPoint *pts, uint2 npts,

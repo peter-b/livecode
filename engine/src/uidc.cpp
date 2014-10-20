@@ -1216,16 +1216,29 @@ bool MCUIDC::addusermessage(MCObject* optr, MCNameRef name, real8 time, MCParame
 
 // MW-2014-04-16: [[ Bug 11690 ]] Rework pending message handling to take advantage
 //   of messages[] now being a sorted list.
-Boolean MCUIDC::handlepending(real8& curtime, real8& eventtime, Boolean dispatch)
+Boolean MCUIDC::handlepending(real8& curtime, real8& eventtime, Boolean dispatch,
+			      Boolean p_allow_idle)
 {
     Boolean t_handled;
     t_handled = False;
+
     for(uindex_t i = 0; i < nmessages; i++)
     {
-        // If the next message is later than curtime, we've not processed a message.
-        if (messages[i] . time > curtime)
-            break;
+		/* Decide if the next message is dispatchable.  If we aren't
+		 * allowed to handle idle messages, then there's no point in
+		 * iterating through looking for them. */
+		real8 t_msg_time = messages[i] . time;
+        if (isfinite (t_msg_time) && t_msg_time > curtime)
+		{
+            if (p_allow_idle)
+				continue;
+			else
+				break;
+		}
         
+		/* In addition to messages with idle scheduling priority
+		 * (which have an infinite message dispatch time) there's also
+		 * the special "idle" message. */
         if (!dispatch && messages[i] . id == 0 && MCNameIsEqualTo(messages[i] . message, MCM_idle, kMCCompareCaseless))
         {
             doshiftmessage(i, curtime + MCidleRate / 1000.0);
