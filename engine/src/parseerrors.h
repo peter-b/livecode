@@ -1698,6 +1698,9 @@ enum Parse_errors
     // AL-2014-10-17: [[ BiDi ]] Returns the result of applying the bi-directional algorithm to text
     // {PE-0552} bidiDirection: bad parameters
 	PE_BIDIDIRECTION_BADPARAM,
+
+	// {PE-0553} Commands: bad 'when' expression
+	PE_SEND_BADWHEN,
 };
 
 extern const char *MCparsingerrors;
