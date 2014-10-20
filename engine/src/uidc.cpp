@@ -996,10 +996,50 @@ void MCUIDC::doaddmessage(MCObject *optr, MCNameRef mptr, real8 time, uint4 id, 
 	}
     
     // Find where in the list to insert the pending message.
-    uint32_t t_index;
-    for(t_index = 0; t_index < nmessages; t_index++)
-        if (messages[t_index] . time > time)
-            break;
+    uint32_t t_index, t_rev_index;
+	if (isfinite (time))
+	{
+		/* Normal messages are inserted sorted by delay time.  Search
+		 * from the start of the message list. */
+		for(t_index = 0; t_index < nmessages; t_index++)
+			if (messages[t_index] . time > time)
+				break;
+	}
+	else
+	{
+		/* Idle priority messages have an infinite time value, and are
+		 * inserted at the end of the message list. However, it's not
+		 * permitted to queue the same idle message twice, so it's
+		 * necessary to search (backwards, from the end of the message
+		 * list) to see if the same idle message is already queued. */
+		for (t_rev_index = 0; t_rev_index < nmessages; t_rev_index++)
+		{
+			MCMessageList t_message;
+			t_index = nmessages - t_rev_index - 1;
+
+			/* If we've found a normal message, there was no match, so
+			 * insert the idle message at the end of the message
+			 * queue. */
+			t_message = messages[t_index];
+			if (isfinite (t_message . time))
+			{
+				t_index = nmessages;
+				break;
+			}
+
+			/* Check if the current message name and target object
+			 * matches the one we're trying to add.  If so, delete it
+			 * and continue the search. */
+			if (optr == t_message . object &&
+				MCNameIsEqualTo (mptr, t_message . message))
+			{
+				cancelmessageindex (t_index, True);
+				/* As an optimisation it may make sense to assume that
+				 * there won't be any more matches. */
+				// break;
+			}
+		}
+	}
     
     // Move all messages in the range [t_index, nmessages) up one.
     MCMemoryMove(&messages[t_index + 1], &messages[t_index], (nmessages - t_index) * sizeof(MCMessageList));
