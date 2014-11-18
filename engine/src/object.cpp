@@ -4823,6 +4823,84 @@ bool MCObject::visit(MCVisitStyle p_style, uint32_t p_part, MCObjectVisitor *p_v
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool
+MCObject::PopulateState (MCRecordRef x_state) const
+{
+	MCTypeInfoRef t_typeinfo;
+	MCAssert(GetStateTypeInfo(t_typeinfo));
+	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (x_state), t_typeinfo));
+
+	/* FIXME fill in the state record */
+
+	return true;
+}
+
+bool
+MCObject::ApplyState (MCRecordRef p_state)
+{
+	MCTypeInfoRef t_typeinfo;
+	MCAssert(GetStateTypeInfo(t_typeinfo));
+	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (p_state), t_typeinfo));
+
+	/* FIXME reset the object using p_state */
+
+	return true;
+}
+
+bool
+MCObject::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
+{
+	static MCTypeInfoRef s_type_info = kMCNullTypeInfo;
+
+	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
+		{ nil, kMCNullTypeInfo },
+	};
+	if (s_type_info == kMCNullTypeInfo)
+	{
+		if (!(MCRecordTypeInfoCreate (s_type_info_fields,
+									 -1,
+									 kMCNullTypeInfo,
+									  s_type_info)))
+			return false;
+	}
+
+	r_type_info = s_type_info;
+	return true;
+}
+
+bool
+MCObject::ExportState (MCRecordRef & r_state) const
+{
+	/* Get the type info and create the state record */
+	MCTypeInfoRef t_type_info;
+	if (!GetStateTypeInfo (t_type_info)) return false;
+	MCAssert (t_type_info != kMCNullTypeInfo);
+
+	MCAutoRecordRef t_state;
+	if (!MCRecordCreateMutable (t_type_info, &t_state)) return false;
+
+	if (!PopulateState (*t_state)) return false;
+
+	MCRecordCopyAndRelease (*t_state, r_state);
+	return true;
+}
+
+bool
+MCObject::ImportState (MCRecordRef p_state)
+{
+	/* Get the type info and check that the state is of the correct
+	 * type */
+	MCTypeInfoRef t_type_info;
+	if (!GetStateTypeInfo (t_type_info))
+		return false;
+	if (!MCTypeInfoConforms (MCValueGetTypeInfo (p_state), t_type_info))
+		return false;
+
+	return ApplyState (p_state);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 MCObjectVisitor::~MCObjectVisitor(void)
 {
 }

@@ -274,6 +274,23 @@ protected:
 	static MCObjectPropertyTable kPropertyTable;
     static MCPropertyInfo kModeProperties[];
 	static MCObjectPropertyTable kModePropertyTable;
+
+	////////// STATE RECORDS
+
+	/* Called by ExportState() to fill in a record structure with
+	 * the object's properties. x_state will be either the type
+	 * returned by GetStateTypeInfo or some MCRecord type derived
+	 * from it.  Should be overridden by subclasses.  Chain up to
+	 * the superclass's implementation. */
+	virtual bool PopulateState (MCRecordRef x_state) const;
+
+	/* Called by ImportState() to apply the values in a record
+	 * structure to the object's properties. p_state will be
+	 * either the type returned by GetStateTypeInfo or some
+	 * MCRecord type derived from it.  Should be overridden by
+	 * subclasses. Chain up to the superclass's implementation. */
+	virtual bool ApplyState (MCRecordRef p_state);
+
 public:
 	MCObject();
 	MCObject(const MCObject &oref);
@@ -829,6 +846,16 @@ public:
     
     void DoGetProperties(MCExecContext& ctxt, uint32_t part, bool p_effective, MCArrayRef& r_props);
     
+	////////// STATE RECORDS
+
+	/* Return the typeinfo for the record type used by this object's
+	 * ImportState() and ExportState() methods. */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
+	/* Export the object's state as a record. */
+	bool ExportState (MCRecordRef & r_state) const;
+	/* Import the object's state from a record */
+	bool ImportState (MCRecordRef p_state);
+
 	////////// PROPERTY ACCESSORS
 	
 	void GetId(MCExecContext& ctxt, uint32_t& r_id);
