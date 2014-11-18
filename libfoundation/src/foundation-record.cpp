@@ -242,6 +242,63 @@ bool MCRecordStoreValue(MCRecordRef self, MCNameRef p_field, MCValueRef p_value)
     return __store_value(self -> typeinfo, self, p_field, p_value);
 }
 
+bool
+MCRecordStoreValues(MCRecordRef self, ...)
+{
+	va_list ap;
+	bool t_success;
+
+	va_start(ap, self);
+	t_success = true;
+	while (t_success)
+	{
+		MCNameRef t_field;
+		MCValueRef t_value;
+
+		t_field = va_arg(ap, MCNameRef);
+
+		/* Detect custodian */
+		if (t_field == nil) break;
+
+		t_value = va_arg(ap, MCValueRef);
+
+
+		t_success = MCRecordStoreValue (self, t_field, t_value);
+	}
+	va_end(ap);
+
+	return t_success;
+}
+
+bool
+MCRecordStoreCValues(MCRecordRef self, ...)
+{
+	va_list ap;
+	bool t_success;
+
+	va_start(ap, self);
+	t_success = true;
+	while (t_success)
+	{
+		const char *t_c_field;
+		MCNewAutoNameRef t_field;
+		MCValueRef t_value;
+
+		t_c_field = va_arg(ap, const char *);
+
+		/* Detect custodian */
+		if (t_c_field == nil) break;
+
+		t_value = va_arg(ap, MCValueRef);
+
+		t_success = (MCNameCreate (t_c_field, &t_field) &&
+					 MCRecordStoreValue (self, *t_field, t_value));
+	}
+	va_end(ap);
+
+	return t_success;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bool
