@@ -67,6 +67,12 @@ class MCAudioClip : public MCObject
 	
 	static MCPropertyInfo kProperties[];
 	static MCObjectPropertyTable kPropertyTable;
+
+	////////// STATE RECORDS
+
+	virtual bool PopulateState (MCRecordRef x_state) const;
+	virtual bool ApplyState (MCRecordRef p_state);
+
 public:
 	MCAudioClip();
 	MCAudioClip(const MCAudioClip &cref);
@@ -156,6 +162,12 @@ public:
 	{
 		return (MCAudioClip *)MCDLlist::remove((MCDLlist *&)list);
 	}
+
+	////////// STATE RECORDS
+
+	/* Return the typeinfo for the record type used by this object's
+	 * ImportState() and ExportState() methods. */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
 
 	////////// PROPERTY ACCESSORS
 
