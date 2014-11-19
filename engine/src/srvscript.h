@@ -49,6 +49,15 @@ public:
     // SN-2014-09-05: [[ Bug 13378 ]] Added forgotten function GetIt
     MCVarref* GetIt();
 	
+	////////// STATE RECORDS
+
+	/* This object should never have its state exported. */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
+	{
+		r_type_info = kMCNullTypeInfo;
+		return true;
+	};
+
 private:
 	// A File record stores information about an included file.
 	struct File
