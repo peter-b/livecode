@@ -41,6 +41,13 @@ class MCEPS : public MCControl
 	static real8 xf;
 	static real8 yf;
 	static char defs[];
+
+protected:
+	////////// STATE RECORDS
+
+	virtual bool PopulateState (MCRecordRef x_state) const;
+	virtual bool ApplyState (MCRecordRef p_state);
+
 public:
 	MCEPS();
 	MCEPS(const MCEPS &sref);
@@ -70,5 +77,11 @@ public:
 	void setextents();
 	void resetscale();
 	Boolean import(MCStringRef fname, IO_handle stream);
+
+	////////// STATE RECORDS
+
+	/* Return the typeinfo for the record type used by this object's
+	 * ImportState() and ExportState() methods. */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
 };
 #endif
