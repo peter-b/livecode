@@ -234,6 +234,15 @@ public:
 		return stacks;
 	}
 
+	////////// STATE RECORDS
+
+	/* This object should never have its state exported */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
+	{
+		r_type_info = kMCNullTypeInfo;
+		return true;
+	}
+
 	////////// PROPERTY ACCESSORS
 
     bool GetColor(MCExecContext& ctxt, Properties which, bool effective, MCInterfaceNamedColor& r_color);
