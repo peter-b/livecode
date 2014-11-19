@@ -37,6 +37,15 @@ public:
 	IO_stat save(IO_handle p_stream, uint4 p_part, bool p_force_ext);
 	IO_stat load(IO_handle p_stream, uint32_t version);
 
+	////////// STATE RECORDS
+
+	/* This object should never have its state exported. */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
+	{
+		r_type_info = kMCNullTypeInfo;
+		return true;
+	};
+
 private:
 	MCParagraph *m_paragraphs;
 };
