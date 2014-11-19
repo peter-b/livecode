@@ -25,6 +25,13 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 class MCColors : public MCControl
 {
 	uint4 selectedcolor;
+
+protected:
+	////////// STATE RECORDS
+
+	virtual bool PopulateState (MCRecordRef x_state) const;
+	virtual bool ApplyState (MCRecordRef p_state);
+
 public:
 	MCColors();
 	MCColors(const MCColors &cref);
@@ -50,5 +57,11 @@ public:
 
 	// MW-2011-09-06: [[ Redraw ]] Added 'sprite' option - if true, ink and opacity are not set.
 	virtual void draw(MCDC *dc, const MCRectangle &dirty, bool p_isolated, bool p_sprite);
+
+	////////// STATE RECORDS
+
+	/* Return the typeinfo for the record type used by this object's
+	 * ImportState() and ExportState() methods. */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
 };
 #endif
