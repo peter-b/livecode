@@ -286,6 +286,37 @@ MCRecordCopyAsBaseTypeAndRelease(MCRecordRef self,
 }
 
 bool
+MCRecordMutableCopyAsBaseType(MCRecordRef self,
+                              MCTypeInfoRef p_base_typeinfo,
+                              MCRecordRef & r_new_record)
+{
+	MCAssert(MCRecordTypeInfoIsDerivedFrom(self -> typeinfo, p_base_typeinfo));
+
+	MCRecordRef t_result;
+	if (!MCRecordCreate(p_base_typeinfo, self -> fields,
+	                    MCRecordTypeInfoGetFieldCount (p_base_typeinfo),
+	                    r_new_record))
+		return false;
+
+	t_result -> flags |= kMCRecordFlagIsMutable;
+
+	r_new_record = t_result;
+
+	return true;
+}
+
+bool
+MCRecordMutableCopyAsBaseTypeAndRelease(MCRecordRef self,
+                                        MCTypeInfoRef p_base_typeinfo,
+                                        MCRecordRef & r_new_record)
+{
+	if (!MCRecordMutableCopyAsBaseType (self, p_base_typeinfo, r_new_record))
+		return false;
+	MCValueRelease(self);
+	return true;
+}
+
+bool
 MCRecordCopyAsDerivedType(MCRecordRef self,
                           MCTypeInfoRef p_derived_typeinfo,
                           MCRecordRef & r_new_record)
@@ -331,15 +362,44 @@ MCRecordCopyAsDerivedTypeAndRelease(MCRecordRef self,
 		return true;
 	}
 
-	/* Otherwise, create and manually populate the new array */
+	MCRecordRef t_result;
+	if (!MCRecordMutableCopyAsDerivedType (self, p_derived_typeinfo, t_result))
+		return false;
+
+	return MCRecordCopyAndRelease(t_result, r_new_record);
+}
+
+bool
+MCRecordMutableCopyAsDerivedType(MCRecordRef self,
+                                 MCTypeInfoRef p_derived_typeinfo,
+                                 MCRecordRef & r_new_record)
+{
+	MCAssert(MCRecordTypeInfoIsDerivedFrom(p_derived_typeinfo, self -> typeinfo));
+
+	/* Create and manually populate the new array */
 	MCRecordRef t_result;
 	if (!MCRecordCreateMutable(p_derived_typeinfo, t_result))
 		return false;
 
+	uindex_t t_field_count;
+	t_field_count = MCRecordTypeInfoGetFieldCount(self -> typeinfo);
 	for (uindex_t i = 0; i < t_field_count; ++i)
 		t_result -> fields[i] = MCValueRetain(self -> fields[i]);
 
-	return MCRecordCopyAndRelease(t_result, r_new_record);
+	r_new_record = t_result;
+
+	return true;
+}
+
+bool
+MCRecordMutableCopyAsDerivedTypeAndRelease(MCRecordRef self,
+                                           MCTypeInfoRef p_derived_typeinfo,
+                                           MCRecordRef & r_new_record)
+{
+	if (!MCRecordMutableCopyAsDerivedType(self, p_derived_typeinfo, r_new_record))
+		return false;
+	MCValueRelease (self);
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
