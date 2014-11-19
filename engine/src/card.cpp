@@ -3715,3 +3715,54 @@ bool MCCard::recomputefonts(MCFontRef p_parent_font)
 	// to be provided to children).
 	return t_changed;
 }
+
+////////////////////////////////////////////////////////////////
+
+bool
+MCCard::PopulateState (MCRecordRef x_state) const
+{
+	MCTypeInfoRef t_typeinfo;
+	MCAssert(GetStateTypeInfo(t_typeinfo));
+	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (x_state),
+	                                       t_typeinfo));
+
+	/* FIXME fill in the state record */
+	return MCObject::PopulateState (x_state);
+}
+
+bool
+MCCard::ApplyState (MCRecordRef p_state)
+{
+	MCTypeInfoRef t_typeinfo;
+	MCAssert(GetStateTypeInfo(t_typeinfo));
+	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (p_state),
+	                                       t_typeinfo));
+
+	/* FIXME reset the object using p_state */
+
+	return MCObject::ApplyState (p_state);
+}
+
+bool
+MCCard::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
+{
+	static MCTypeInfoRef s_type_info = kMCNullTypeInfo;
+
+	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
+		{ nil, kMCNullTypeInfo },
+	};
+	if (s_type_info == kMCNullTypeInfo)
+	{
+		MCTypeInfoRef t_super_type_info;
+		if (!(MCObject::GetStateTypeInfo (t_super_type_info) &&
+			  MCRecordTypeInfoCreate (s_type_info_fields,
+									 -1,
+									 t_super_type_info,
+									  s_type_info)))
+			return false;
+	}
+
+	r_type_info = s_type_info;
+	return true;
+}
+
