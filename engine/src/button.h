@@ -144,6 +144,11 @@ class MCButton : public MCControl
     // MM-2014-07-31: [[ ThreadedRendering ]] Used to ensure the default button animate message is only posted from a single thread.
     bool m_animate_posted : 1;
 
+	////////// STATE RECORDS
+
+	virtual bool PopulateState (MCRecordRef x_state) const;
+	virtual bool ApplyState (MCRecordRef p_state);
+
 public:
 	MCButton();
 	MCButton(const MCButton &bref);
@@ -355,6 +360,12 @@ public:
 	{
 		return (MCButton *)MCDLlist::remove((MCDLlist *&)list);
 	}
+
+	////////// STATE RECORDS
+
+	/* Return the typeinfo for the record type used by this object's
+	 * ImportState() and ExportState() methods. */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
 
 	////////// PROPERTY SUPPORT METHODS
 
