@@ -247,6 +247,12 @@ class MCField : public MCControl
 
 	static MCPropertyInfo kProperties[];
 	static MCObjectPropertyTable kPropertyTable;
+
+	////////// STATE RECORDS
+
+	virtual bool PopulateState (MCRecordRef x_state) const;
+	virtual bool ApplyState (MCRecordRef p_state);
+
 public:
 
     // SN-2014-11-04: [[ Bug 13934 ]] Refactor the laying out the field when setting properties
@@ -646,7 +652,13 @@ public:
     
     void DoSetInputControl(MCExecContext& ctxt, Properties which, bool setting);
     void DoSetTabStops(MCExecContext& ctxt, bool is_relative, uindex_t p_count, uinteger_t *p_tabs);
-    
+
+	////////// STATE RECORDS
+
+	/* Return the typeinfo for the record type used by this object's
+	 * ImportState() and ExportState() methods. */
+	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
+
 	////////// PROPERTY ACCESSORS
 
 	void GetAutoTab(MCExecContext& ctxt, bool& r_flag);
