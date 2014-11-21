@@ -28,6 +28,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "util.h"
 #include "system.h"
 
+#include "stackarr.h"
 #include "stackdir.h"
 
 #include "stackdir_private.h"
@@ -170,7 +171,7 @@ static bool MCStackdirIOSaveObjectDirectory (MCStackdirIOObjectSaveRef info);
 
 /* Extract the value corresponding to p_key from the object's state
  * array, and save it to a file with name p_key. */
-static bool MCStackdirIOSaveObjectKeyDirect (MCStackdirIOObjectSaveRef info, MCStringRef p_key, bool p_required=true);
+static bool MCStackdirIOSaveObjectKeyDirect (MCStackdirIOObjectSaveRef info, MCNameRef p_key, bool p_required=true);
 
 /* Create object's "_kind" file */
 static bool MCStackdirIOSaveObjectKind (MCStackdirIOObjectSaveRef info);
@@ -461,8 +462,8 @@ MCStackdirIOArrayGetPropertyInfo (MCStackdirIORef op,
 
 	MCArrayRef t_array = (MCArrayRef) p_info;
 	MCValueRef t_type, t_literal;
-	if (!(MCArrayFetchValue (t_array, false, kMCStackdirTypeKey, t_type) &&
-		  MCArrayFetchValue (t_array, false, kMCStackdirLiteralKey, t_literal) &&
+	if (!(MCArrayFetchValue (t_array, false, kMCStackarrTypeKey, t_type) &&
+		  MCArrayFetchValue (t_array, false, kMCStackarrLiteralKey, t_literal) &&
 		  MCValueGetTypeCode (t_type) == kMCValueTypeCodeName))
 		return MCStackdirIOSaveErrorBadTypeInfo (op);
 
@@ -1355,20 +1356,18 @@ MCStackdirIOSaveObjectDirectory (MCStackdirIOObjectSaveRef info)
 }
 
 static bool
-MCStackdirIOSaveObjectKeyDirect (MCStackdirIOObjectSaveRef info, MCStringRef p_key, bool p_required)
+MCStackdirIOSaveObjectKeyDirect (MCStackdirIOObjectSaveRef info, MCNameRef p_key, bool p_required)
 {
-	MCNewAutoNameRef t_key;
 	MCValueRef t_value;
-	if (!MCNameCreate (p_key, &t_key))
-		return MCStackdirIOErrorOutOfMemory (info->m_op);
 
 	/* Construct path for file */
 	MCAutoStringRef t_path;
-	if (!MCStringFormat (&t_path, "%@/%@", info->m_path, p_key))
+	if (!MCStringFormat (&t_path, "%@/%@", info->m_path,
+	                     MCNameGetString(p_key)))
 		return MCStackdirIOErrorOutOfMemory (info->m_op);
 
 	/* Each object's state array has to have the specified key */
-	if (!MCArrayFetchValue (info->m_state, false, *t_key, t_value))
+	if (!MCArrayFetchValue (info->m_state, false, p_key, t_value))
 	{
 		if (p_required)
 			return MCStackdirIOSaveErrorObjectRequiredKey (info->m_op, *t_path);
@@ -1387,13 +1386,13 @@ MCStackdirIOSaveObjectKeyDirect (MCStackdirIOObjectSaveRef info, MCStringRef p_k
 static bool
 MCStackdirIOSaveObjectKind (MCStackdirIOObjectSaveRef info)
 {
-	return MCStackdirIOSaveObjectKeyDirect (info, kMCStackdirKindFile);
+	return MCStackdirIOSaveObjectKeyDirect (info, kMCStackarrKindKey);
 }
 
 static bool
 MCStackdirIOSaveObjectParent (MCStackdirIOObjectSaveRef info)
 {
-	return MCStackdirIOSaveObjectKeyDirect (info, kMCStackdirParentFile, false);
+	return MCStackdirIOSaveObjectKeyDirect (info, kMCStackarrParentKey, false);
 }
 
 static bool
@@ -1402,7 +1401,7 @@ MCStackdirIOSaveObjectInternal (MCStackdirIOObjectSaveRef info)
 	MCValueRef t_internal_props;
 
 	/* The state array has to have an _internal array */
-	if (!MCArrayFetchValue (info->m_state, false, kMCStackdirInternalKey,
+	if (!MCArrayFetchValue (info->m_state, false, kMCStackarrInternalKey,
 							t_internal_props))
 		return MCStackdirIOSaveErrorObjectMissingInternal (info->m_op);
 
@@ -1475,7 +1474,7 @@ MCStackdirIOSaveObjectPropsets (MCStackdirIOObjectSaveRef info)
 	MCValueRef t_custom_propsets;
 
 	/* The state array may have _custom array (even if it's empty) */
-	if (!MCArrayFetchValue (info->m_state, false, kMCStackdirCustomKey,
+	if (!MCArrayFetchValue (info->m_state, false, kMCStackarrCustomKey,
 							t_custom_propsets))
 		return true;
 
@@ -1571,7 +1570,7 @@ MCStackdirIOSaveObjectShared (MCStackdirIOObjectSaveRef info)
 	MCValueRef t_shared_properties;
 
 	/* The state array may have a _shared array (even if it's empty) */
-	if (!MCArrayFetchValue (info->m_state, false, kMCStackdirSharedKey,
+	if (!MCArrayFetchValue (info->m_state, false, kMCStackarrSharedKey,
 							t_shared_properties))
 		return true;
 

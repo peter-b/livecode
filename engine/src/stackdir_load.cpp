@@ -28,6 +28,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "util.h"
 #include "system.h"
 
+#include "stackarr.h"
 #include "stackdir.h"
 
 #include "stackdir_private.h"
@@ -104,7 +105,7 @@ static bool MCStackdirIOLoadObject (MCStackdirIORef op, MCStringRef p_uuid, MCSt
 
 /* Read a datum from the file named p_key, and save it into the state
  * vector with the same p_key. */
-static bool MCStackdirIOLoadObjectKeyDirect (MCStackdirIOObjectLoadRef info, MCStringRef p_key, bool p_required=true);
+static bool MCStackdirIOLoadObjectKeyDirect (MCStackdirIOObjectLoadRef info, MCNameRef p_key, bool p_required=true);
 
 /* Load an object's "_parent" file */
 static bool MCStackdirIOLoadObjectParent (MCStackdirIOObjectLoadRef info);
@@ -262,7 +263,7 @@ MCStackdirIOLoadProperty_Array (MCStackdirIORef op,
 	MCValueRef t_array_props;
 	t_success = MCArrayFetchValue ((MCArrayRef) t_literal_info,
 								   true,
-								   kMCStackdirLiteralKey,
+								   kMCStackarrLiteralKey,
 								   t_array_props);
 	MCAssert (t_success);
 
@@ -715,11 +716,11 @@ MCStackdirIOLoadProperty (MCStackdirIORef op,
 		if (!(MCArrayCreateMutable (&t_literal_info) &&
 			  MCArrayStoreValue (*t_literal_info,
 								 true,
-								 kMCStackdirTypeKey,
+								 kMCStackarrTypeKey,
 								 *t_type) &&
 			  MCArrayStoreValue (*t_literal_info,
 								 true,
-								 kMCStackdirLiteralKey,
+								 kMCStackarrLiteralKey,
 								 *t_value)))
 			return MCStackdirIOErrorOutOfMemory (op);
 
@@ -864,12 +865,13 @@ MCStackdirIOLoadObject (MCStackdirIORef op,
 
 static bool
 MCStackdirIOLoadObjectKeyDirect (MCStackdirIOObjectLoadRef info,
-								 MCStringRef p_key,
+								 MCNameRef p_key,
 								 bool p_required)
 {
 	/* Construct path for file */
 	MCAutoStringRef t_path;
-	if (!MCStringFormat (&t_path, "%@/%@", info->m_path, p_key))
+	if (!MCStringFormat (&t_path, "%@/%@", info->m_path,
+	                     MCNameGetString(p_key)))
 		return MCStackdirIOErrorOutOfMemory (info->m_op);
 
 	/* Load file into memory.  If p_required is false, allow the file
@@ -910,13 +912,9 @@ MCStackdirIOLoadObjectKeyDirect (MCStackdirIOObjectLoadRef info,
 	if (!t_success) return false;
 
 	/* Insert the value into the state array */
-	MCNewAutoNameRef t_key;
-	if (!MCNameCreate (p_key, &t_key))
-		return MCStackdirIOErrorOutOfMemory (info->m_op);
-
 	if (!MCArrayStoreValue (info->m_state,
 							false,
-							*t_key,
+							p_key,
 							*t_value))
 		return MCStackdirIOErrorOutOfMemory (info->m_op);
 
@@ -927,7 +925,7 @@ static bool
 MCStackdirIOLoadObjectParent (MCStackdirIOObjectLoadRef info)
 {
 	return MCStackdirIOLoadObjectKeyDirect (info,
-											kMCStackdirParentFile,
+											kMCStackarrParentKey,
 											false);
 }
 
@@ -935,7 +933,7 @@ static bool
 MCStackdirIOLoadObjectKind (MCStackdirIOObjectLoadRef info)
 {
 	return MCStackdirIOLoadObjectKeyDirect (info,
-											kMCStackdirKindFile,
+											kMCStackarrKindKey,
 											true);
 }
 
@@ -946,7 +944,7 @@ MCStackdirIOLoadObjectInternal (MCStackdirIOObjectLoadRef info)
 	if (!(MCArrayCreateMutable (&t_internal) &&
 		  MCArrayStoreValue (info->m_state,
 							 true,
-							 kMCStackdirInternalKey,
+							 kMCStackarrInternalKey,
 							 *t_internal)))
 		return MCStackdirIOErrorOutOfMemory (info->m_op);
 
@@ -991,7 +989,7 @@ MCStackdirIOLoadObjectCustom_Callback (void *context,
 	bool t_success;
 	t_success = MCArrayFetchValue (info->m_state,
 								   true,
-								   kMCStackdirCustomKey,
+								   kMCStackarrCustomKey,
 								   t_custom);
 	MCAssert (t_success); /* This *must* be present */
 	MCAssert (MCValueIsArray (t_custom));
@@ -1021,7 +1019,7 @@ MCStackdirIOLoadObjectCustom (MCStackdirIOObjectLoadRef info)
 	if (!(MCArrayCreateMutable (&t_custom) &&
 		  MCArrayStoreValue (info->m_state,
 							 true,
-							 kMCStackdirCustomKey,
+							 kMCStackarrCustomKey,
 							 *t_custom) &&
 		  MCS_pathtonative (info->m_path, &t_native_path)))
 		return MCStackdirIOErrorOutOfMemory (info->m_op);
@@ -1044,7 +1042,7 @@ MCStackdirIOLoadObjectShared (MCStackdirIOObjectLoadRef info)
 	if (!(MCArrayCreateMutable (&t_shared) &&
 		  MCArrayStoreValue (info->m_state,
 							 true,
-							 kMCStackdirSharedKey,
+							 kMCStackarrSharedKey,
 							 *t_shared) &&
 		  MCStringFormat (&t_shared_file, "%@/%@",
 						  info->m_path, kMCStackdirSharedFile)))

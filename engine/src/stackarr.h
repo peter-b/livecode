@@ -28,6 +28,18 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
  */
 
 /* ----------------------------------------------------------------
+ * Constants
+ * ---------------------------------------------------------------- */
+
+extern MCNameRef kMCStackarrCustomKey;
+extern MCNameRef kMCStackarrInternalKey;
+extern MCNameRef kMCStackarrKindKey;
+extern MCNameRef kMCStackarrLiteralKey;
+extern MCNameRef kMCStackarrParentKey;
+extern MCNameRef kMCStackarrSharedKey;
+extern MCNameRef kMCStackarrTypeKey;
+
+/* ----------------------------------------------------------------
  * High-level stack array functions.
  * ---------------------------------------------------------------- */
 

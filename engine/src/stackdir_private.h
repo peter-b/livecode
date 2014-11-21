@@ -81,18 +81,10 @@ bool MCStackdirIONew (MCStackdirIORef &op);
 
 /* Filenames */
 #define kMCStackdirVersionFile  MCSTR("_version")
-#define kMCStackdirKindFile     MCSTR("_kind")
-#define kMCStackdirParentFile   MCSTR("_parent")
 #define kMCStackdirContentsFile MCSTR("_contents")
 #define kMCStackdirOverflowFile MCSTR("_overflow")
 #define kMCStackdirEmptyFile    MCSTR("_empty")
 #define kMCStackdirSharedFile    MCSTR("_shared")
-
-#define kMCStackdirInternalKey  MCNAME("_internal")
-#define kMCStackdirTypeKey      MCNAME("_type")
-#define kMCStackdirLiteralKey   MCNAME("_literal")
-#define kMCStackdirCustomKey    MCNAME("_custom")
-#define kMCStackdirSharedKey    MCNAME("_shared")
 
 #define kMCStackdirStringSuffix  MCSTR(".txt")
 #define kMCStackdirDataSuffix    MCSTR(".bin")

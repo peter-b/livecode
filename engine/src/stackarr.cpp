@@ -27,6 +27,18 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "stackarr.h"
 
 /* ================================================================
+ * File-local declarations
+ * ================================================================ */
+
+MCNameRef kMCStackarrCustomKey;
+MCNameRef kMCStackarrInternalKey;
+MCNameRef kMCStackarrKindKey;
+MCNameRef kMCStackarrLiteralKey;
+MCNameRef kMCStackarrParentKey;
+MCNameRef kMCStackarrSharedKey;
+MCNameRef kMCStackarrTypeKey;
+
+/* ================================================================
  * High-level entry points
  * ================================================================ */
 
@@ -39,6 +51,15 @@ MCStackarrInitialize (void)
 {
 	static bool s_once = false;
 	if (s_once) return;
+
+	/* Constants */
+	kMCStackarrCustomKey   = MCNAME("_custom");
+	kMCStackarrInternalKey = MCNAME("_internal");
+	kMCStackarrKindKey     = MCNAME("_kind");
+	kMCStackarrLiteralKey  = MCNAME("_literal");
+	kMCStackarrParentKey   = MCNAME("_parent");
+	kMCStackarrSharedKey   = MCNAME("_shared");
+	kMCStackarrTypeKey     = MCNAME("_type");
 
 	s_once = true;
 }
