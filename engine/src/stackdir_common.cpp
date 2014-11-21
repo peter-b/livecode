@@ -27,6 +27,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "system.h"
 #include "uuid.h"
 
+#include "stackarr.h"
 #include "stackdir.h"
 
 #include "stackdir_private.h"
@@ -496,6 +497,7 @@ void
 MCStackdirIOCommit (MCStackdirIORef op)
 {
 	MCAssert (op != nil);
+	MCStackarrInitialize ();
 
 	switch (op->m_type)
 	{
