@@ -796,6 +796,14 @@ public:
 	{
 		return cards;
 	}
+	MCAudioClip *getaclips()
+	{
+		return aclips;
+	}
+	MCVideoClip *getvclips()
+	{
+		return vclips;
+	}
 
 	bool hasmenubar(void)
 	{
