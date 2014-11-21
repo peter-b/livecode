@@ -24,6 +24,8 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "mcio.h"
 #include "sysdefs.h"
 
+#include "exec.h"
+#include "globals.h"
 #include "stack.h"
 #include "card.h"
 #include "group.h"
@@ -323,4 +325,37 @@ MCStackarrCaptureStack (MCStack * stack,
 		return false;
 
 	return MCArrayCopy(*t_state, r_typed_state);
+}
+
+/* ----------------------------------------------------------------
+ * [Public] Internal debugging commands
+ * ---------------------------------------------------------------- */
+
+void
+MCStackarrExecInternalExport (MCExecContext & ctxt,
+                              MCStringRef p_name,
+                              MCVariableChunkPtr p_var)
+{
+	MCNewAutoNameRef t_name;
+	/* UNCHECKED */ MCNameCreate(p_name, &t_name);
+	MCStack *t_stack;
+	t_stack = MCdefaultstackptr->findstackname (*t_name);
+
+	if (t_stack == nil)
+	{
+		ctxt . LegacyThrow (EE_INTERNAL_STACKARR_BADSTACK);
+		return;
+	}
+
+	MCAutoArrayRef t_state;
+	bool t_success;
+	t_success = MCStackarrCaptureStack (t_stack, &t_state);
+
+	MCValueRef t_result = t_success ? (MCValueRef) *t_state : kMCEmptyString;
+
+	MCEngineExecPutIntoVariable (ctxt,
+	                             t_result,
+	                             PT_INTO,
+	                             p_var);
+	ctxt.SetTheResultToBool (t_success);
 }

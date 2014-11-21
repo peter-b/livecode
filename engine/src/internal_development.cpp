@@ -72,6 +72,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "printer.h"
 #include "hndlrlst.h"
 #include "osspec.h"
+#include "stackarr.h"
 #include "stackdir.h"
 
 #include "debug.h"
@@ -1030,6 +1031,68 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/* _internal stackarr export <stack> into <state> */
+class MCInternalStackarrExport : public MCStatement
+{
+protected:
+	MCExpression *m_stack;
+	MCChunk m_dest;
+
+public:
+	MCInternalStackarrExport (void)
+		: m_stack (nil), m_dest (True)
+	{ }
+
+	virtual ~MCInternalStackarrExport (void)
+	{
+		delete m_stack;
+	}
+
+	Parse_stat parse (MCScriptPoint & sp)
+	{
+		initpoint (sp);
+
+		if (sp.parseexp(False, True, &m_stack) != PS_NORMAL ||
+		    sp.skip_token (SP_FACTOR, TT_PREP, PT_INTO) != PS_NORMAL)
+		{
+			MCperror->add (PE_INTERNAL_BADNOUN, sp);
+			return PS_ERROR;
+		}
+
+		if (m_dest.parse(sp, False) != PS_NORMAL)
+		{
+			MCperror->add (PE_INTERNAL_BADNOUN, sp);
+			return PS_ERROR;
+		}
+
+		/* Only allow exporting into a variable */
+		if (!m_dest.isvarchunk())
+		{
+			MCperror->add (PE_INTERNAL_BADNOUN, sp);
+			return PS_ERROR;
+		}
+
+		return PS_NORMAL;
+	}
+
+	void exec_ctxt (MCExecContext & ctxt)
+	{
+		MCAutoStringRef t_stack;
+		if (!ctxt.EvalExprAsStringRef (m_stack,
+		                               EE_INTERNAL_STACKARR_BADSTACK,
+		                               &t_stack))
+			return;
+
+		MCVariableChunkPtr t_var_chunk;
+		if (!m_dest.evalvarchunk (ctxt, false, true, t_var_chunk))
+			return;
+
+		MCStackarrExecInternalExport (ctxt, *t_stack, t_var_chunk);
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 template<class T> inline MCStatement *class_factory(void)
 {
 	return new T;
@@ -1065,6 +1128,7 @@ MCInternalVerbInfo MCinternalverbs[] =
 	{ "filter", "controls", class_factory<MCIdeFilterControls> },
 	{ "stackdir", "save", class_factory<MCInternalStackdirSave> },
 	{ "stackdir", "load", class_factory<MCInternalStackdirLoad> },
+	{ "stackarr", "export", class_factory<MCInternalStackarrExport> },
 	{ nil, nil, nil }
 };
 

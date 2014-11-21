@@ -2618,6 +2618,9 @@ enum Exec_errors
 
 	/* {EE-0845} stackdir: bad state */
 	EE_INTERNAL_STACKDIR_BADSTATE,
+
+	/* {EE-0846} stackarr: bad stack */
+	EE_INTERNAL_STACKARR_BADSTACK,
 };
 
 extern const char *MCexecutionerrors;

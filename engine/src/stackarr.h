@@ -54,4 +54,10 @@ bool MCStackarrMakeTyped (MCArrayRef p_detyped_state, MCArrayRef & r_typed_state
 
 bool MCStackarrMakeDetyped (MCArrayRef p_typed_state, MCArrayRef & r_detyped_state);
 
+/* ----------------------------------------------------------------
+ * Internal debugging commands
+ * ---------------------------------------------------------------- */
+
+void MCStackarrExecInternalExport (MCExecContext & ctxt, MCStringRef p_stack, MCVariableChunkPtr p_var);
+
 #endif /* !_MC_STACKARR_H_ */
