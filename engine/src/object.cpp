@@ -4878,13 +4878,21 @@ MCObject::ExportState (MCRecordRef & r_state) const
 	if (!GetStateTypeInfo (t_type_info)) return false;
 	MCAssert (t_type_info != kMCNullTypeInfo);
 
-	MCAutoRecordRef t_state;
-	if (!MCRecordCreateMutable (t_type_info, &t_state)) return false;
+	MCRecordRef t_state;
+	bool t_success = true;
+	if (t_success)
+		t_success = MCRecordCreateMutable (t_type_info, t_state);
 
-	if (!PopulateState (*t_state)) return false;
+	if (t_success)
+		t_success = PopulateState (t_state);
 
-	MCRecordCopyAndRelease (*t_state, r_state);
-	return true;
+	if (t_success)
+		t_success = MCRecordCopyAndRelease (t_state, r_state);
+
+	if (!t_success)
+		MCValueRelease (t_state);
+
+	return t_success;
 }
 
 bool
