@@ -792,12 +792,12 @@ MCEPS::ApplyState (MCRecordRef p_state)
 bool
 MCEPS::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
-	static MCTypeInfoRef s_type_info = kMCNullTypeInfo;
+	static MCTypeInfoRef s_type_info = NULL;
 
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
 		{ nil, kMCNullTypeInfo },
 	};
-	if (s_type_info == kMCNullTypeInfo)
+	if (s_type_info == NULL)
 	{
 		MCTypeInfoRef t_super_type_info;
 		if (!(MCControl::GetStateTypeInfo (t_super_type_info) &&

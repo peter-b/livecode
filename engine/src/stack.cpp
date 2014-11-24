@@ -3399,12 +3399,12 @@ MCStack::ApplyState (MCRecordRef p_state)
 bool
 MCStack::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
-	static MCTypeInfoRef s_type_info = kMCNullTypeInfo;
+	static MCTypeInfoRef s_type_info = NULL;
 
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
 		{ nil, kMCNullTypeInfo },
 	};
-	if (s_type_info == kMCNullTypeInfo)
+	if (s_type_info == NULL)
 	{
 		MCTypeInfoRef t_super_type_info;
 		if (!(MCObject::GetStateTypeInfo (t_super_type_info) &&
