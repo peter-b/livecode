@@ -859,8 +859,12 @@ public:
 	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
 	/* Export the object's state as a record. */
 	bool ExportState (MCRecordRef & r_state) const;
+	/* Export the object's custom properties as an array. */
+	bool ExportCustomState (MCArrayRef & r_custom) const;
 	/* Import the object's state from a record */
 	bool ImportState (MCRecordRef p_state);
+	/* Import the object's custom properties from an array. */
+	bool ImportCustomState (MCArrayRef p_custom);
 
 	////////// PROPERTY ACCESSORS
 	

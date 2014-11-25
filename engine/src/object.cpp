@@ -23,6 +23,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "mcio.h"
 
 //#include "execpt.h"
+#include "objectpropsets.h"
 #include "dispatch.h"
 #include "stack.h"
 #include "card.h"
@@ -4896,6 +4897,42 @@ MCObject::ExportState (MCRecordRef & r_state) const
 }
 
 bool
+MCObject::ExportCustomState (MCArrayRef & r_custom) const
+{
+	MCArrayRef t_custom;
+	bool t_success = true;
+
+	/* Fast path */
+	if (props == nil)
+		return MCArrayCopy (kMCEmptyArray, r_custom);
+
+	if (t_success)
+		t_success = MCArrayCreateMutable (t_custom);
+
+	MCObjectPropertySet *p = props;
+	while (t_success)
+	{
+		if (p == nil) break;
+
+		MCNameRef p_key = p->getname();
+		MCArrayRef p_props = nil;
+
+		t_success = (p->fetch(p_props) &&
+		             MCArrayStoreValue (t_custom, true, p_key, p_props));
+		MCValueRelease (p_props);
+
+		p = p->getnext();
+	}
+
+	if (t_success)
+		return MCArrayCopyAndRelease (t_custom, r_custom);
+	else
+		MCValueRelease (t_custom);
+
+	return t_success;
+}
+
+bool
 MCObject::ImportState (MCRecordRef p_state)
 {
 	/* Get the type info and check that the state is of the correct
@@ -4907,6 +4944,62 @@ MCObject::ImportState (MCRecordRef p_state)
 		return false;
 
 	return ApplyState (p_state);
+}
+
+bool
+MCObject::ImportCustomState (MCArrayRef p_custom)
+{
+	MCAssert (p_custom != nil);
+
+	/* FIXME For now, assume that we will *always* be importing into a fresh
+	 * object. */
+	MCAssert (props == nil);
+
+	uintptr_t iterator = 0;
+	MCNameRef p_key;
+	MCValueRef p_value;
+	bool t_success = true;
+
+	/* This will be a linked list of all the new property sets */
+	MCObjectPropertySet *t_new_props_list = nil;
+
+	while (t_success && MCArrayIterate (p_custom, iterator, p_key, p_value))
+	{
+		MCAssert (MCValueIsArray (p_value));
+		MCObjectPropertySet *p;
+
+		if (t_success)
+			t_success = MCObjectPropertySet::createwithname (p_key, p);
+
+		if (t_success)
+			t_success = p->store ((MCArrayRef) p_value);
+
+		/* Push newly-created property set onto the front of the list. */
+		if (t_success)
+		{
+			if (t_new_props_list != nil)
+				p->setnext (t_new_props_list);
+			t_new_props_list = p;
+		}
+	}
+
+	/* On success, replace the object's current property list and delete the
+	 * old one; on failure, delete the newly-constructed property list. */
+	MCObjectPropertySet *t_to_delete = t_new_props_list;
+	if (t_success)
+	{
+		t_to_delete = props;
+		props = t_new_props_list;
+	}
+
+	while (t_to_delete != nil)
+	{
+		MCObjectPropertySet *p = t_to_delete;
+		t_to_delete = p->getnext ();
+		delete p;
+	}
+
+	return t_success;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
