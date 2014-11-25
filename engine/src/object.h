@@ -287,12 +287,36 @@ protected:
 	 * the superclass's implementation. */
 	virtual bool PopulateState (MCRecordRef x_state) const;
 
+	/* Called by ExportSharedState() to determine whether the object
+	 * has per-card data for p_card.  Should return true only if the
+	 * object supports per-card data and contains per-card data for
+	 * p_card.  This must only be overridden in classes that actually
+	 * support per-card data.  Chain up to the superclass's
+	 * implementation. */
+	virtual bool HasSharedState (MCCard *p_card) const;
+
+	/* Called by ExportSharedState() to fill in a record structure
+	 * with the object's per-card data. x_shared will be either the
+	 * type returned by GetSharedStateTypeInfo() or some MCRecord type
+	 * derived from it.  This must only be overridden in classes that
+	 * actually support per-card data.  Chain up to the superclass's
+	 * implementation. */
+	virtual bool PopulateSharedState (MCCard *p_card, MCRecordRef x_shared) const;
+
 	/* Called by ImportState() to apply the values in a record
 	 * structure to the object's properties. p_state will be
 	 * either the type returned by GetStateTypeInfo or some
 	 * MCRecord type derived from it.  Should be overridden by
 	 * subclasses. Chain up to the superclass's implementation. */
 	virtual bool ApplyState (MCRecordRef p_state);
+
+	/* Called by ImportSharedState() to apply the values in a record
+	 * structure to the object's per-card data.  p_shared will be
+	 * either the type returned by GetSharedStateTypeInfo() or some
+	 * MCRecord type derived from it.  This will only be called (and
+	 * must only be overridden) in classes that actually support
+	 * per-card data.  Chain up to the superclass's implementation. */
+	virtual bool ApplySharedState (MCCard *p_card, MCRecordRef p_shared);
 
 public:
 	MCObject();
@@ -857,14 +881,29 @@ public:
 	/* Return the typeinfo for the record type used by this object's
 	 * ImportState() and ExportState() methods. */
 	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
+	/* Return the typeinfo for the per-card data record type used by
+	 * this object's ExportCardState() and ImportCardState() methods.
+	 * This should return true and set r_type_info to kMCNullTypeInfo
+	 * if this object never has any per-card data. */
+	virtual bool GetSharedStateTypeInfo (MCTypeInfoRef & r_type_info) const;
+
 	/* Export the object's state as a record. */
 	bool ExportState (MCRecordRef & r_state) const;
 	/* Export the object's custom properties as an array. */
 	bool ExportCustomState (MCArrayRef & r_custom) const;
+	/* Export the object's per-card properties as a record.  N.b. that
+	 * if there is no per-card data for p_card, this method will
+	 * return true and set r_shared to nil.  It's therefore important
+	 * to always check the value of r_shared after calling this
+	 * method. */
+	bool ExportSharedState (MCCard *p_card, MCRecordRef & r_shared) const;
+
 	/* Import the object's state from a record */
 	bool ImportState (MCRecordRef p_state);
 	/* Import the object's custom properties from an array. */
 	bool ImportCustomState (MCArrayRef p_custom);
+	/* Import the object's per-card properties from a record */
+	bool ImportSharedState (MCCard *p_card, MCRecordRef p_shared);
 
 	////////// PROPERTY ACCESSORS
 	

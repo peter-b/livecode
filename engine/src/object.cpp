@@ -4839,6 +4839,21 @@ MCObject::PopulateState (MCRecordRef x_state) const
 }
 
 bool
+MCObject::HasSharedState (MCCard *p_card) const
+{
+	/* The base class does not support per-card data. */
+	return false;
+}
+
+bool
+MCObject::PopulateSharedState (MCCard *p_card,
+                               MCRecordRef x_shared) const
+{
+	/* The base class does not support per-card data. */
+	return true;
+}
+
+bool
 MCObject::ApplyState (MCRecordRef p_state)
 {
 	MCTypeInfoRef t_typeinfo;
@@ -4847,6 +4862,14 @@ MCObject::ApplyState (MCRecordRef p_state)
 
 	/* FIXME reset the object using p_state */
 
+	return true;
+}
+
+bool
+MCObject::ApplySharedState (MCCard *p_card,
+                            MCRecordRef p_shared)
+{
+	/* The base class does not support per-card data. */
 	return true;
 }
 
@@ -4868,6 +4891,13 @@ MCObject::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 	}
 
 	r_type_info = s_type_info;
+	return true;
+}
+
+bool
+MCObject::GetSharedStateTypeInfo (MCTypeInfoRef & r_type_info) const
+{
+	r_type_info = kMCNullTypeInfo;
 	return true;
 }
 
@@ -4933,8 +4963,47 @@ MCObject::ExportCustomState (MCArrayRef & r_custom) const
 }
 
 bool
+MCObject::ExportSharedState (MCCard *p_card,
+                             MCRecordRef & r_shared) const
+{
+	/* Get the type info */
+	MCTypeInfoRef t_shared_typeinfo;
+	if (!GetSharedStateTypeInfo (t_shared_typeinfo))
+		return false;
+
+	/* If the typeinfo is kMCNullTypeInfo, it means that there are no per-card
+	 * data for this type and this function shouldn't have been called. */
+	MCAssert (t_shared_typeinfo != kMCNullTypeInfo);
+
+	/* If there is no per-card data for the specified card, do nothing successfully. */
+	if (!HasSharedState (p_card))
+	{
+		r_shared = nil;
+		return true;
+	}
+
+	MCRecordRef t_shared;
+	bool t_success = true;
+	if (t_success)
+		t_success = MCRecordCreateMutable (t_shared_typeinfo, t_shared);
+
+	if (t_success)
+		t_success = PopulateSharedState (p_card, t_shared);
+
+	if (t_success)
+		t_success = MCRecordCopyAndRelease (t_shared, r_shared);
+
+	if (!t_success)
+		MCValueRelease (t_shared);
+
+	return t_success;
+}
+
+bool
 MCObject::ImportState (MCRecordRef p_state)
 {
+	MCAssert (p_state != nil);
+
 	/* Get the type info and check that the state is of the correct
 	 * type */
 	MCTypeInfoRef t_type_info;
@@ -5000,6 +5069,22 @@ MCObject::ImportCustomState (MCArrayRef p_custom)
 	}
 
 	return t_success;
+}
+
+bool
+MCObject::ImportSharedState (MCCard *p_card,
+                             MCRecordRef p_shared)
+{
+	MCAssert (p_card != nil);
+	MCAssert (p_shared != nil);
+
+	MCTypeInfoRef t_shared_typeinfo;
+	if (!GetSharedStateTypeInfo (t_shared_typeinfo))
+		return false;
+	if (!MCTypeInfoConforms (MCValueGetTypeInfo (p_shared), t_shared_typeinfo))
+		return false;
+
+	return ApplySharedState (p_card, p_shared);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
