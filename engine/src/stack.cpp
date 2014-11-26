@@ -55,6 +55,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "tilecache.h"
 #include "font.h"
 #include "external.h"
+#include "typeinfo.h"
 
 #include "exec.h"
 
@@ -3399,7 +3400,13 @@ MCStack::PopulateState (MCRecordRef x_state)
 	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (x_state),
 	                                       t_typeinfo));
 
-	/* FIXME fill in the state record */
+	if (is_fullscreen ())
+	{
+		/* FIXME fix up the rect property */
+	}
+
+	if (!(PopulateStateField ... ))
+		return false;
 	return MCObject::PopulateState (x_state);
 }
 
@@ -3420,6 +3427,41 @@ bool
 MCStack::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
+		{ MCNAME ("cantAbort"), kMCBooleanTypeInfo },
+		{ MCNAME ("cantDelete"), kMCBooleanTypeInfo },
+		{ MCNAME ("cantModify"), kMCBooleanTypeInfo },
+		{ MCNAME ("destroyStack"), kMCBooleanTypeInfo },
+		{ MCNAME ("destroyWindow"), kMCBooleanTypeInfo },
+		{ MCNAME ("dynamicPaths"), kMCBooleanTypeInfo },
+		{ MCNAME ("editMenus"), kMCBooleanTypeInfo },
+		{ MCNAME ("externals"), kMCArrayTypeInfo },
+		{ MCNAME ("fileName"), kMCStringTypeInfo },
+		{ MCNAME ("formatForPrinting"), kMCBooleanTypeInfo },
+		{ MCNAME ("fullscreen"), kMCBooleanTypeInfo },
+		{ MCNAME ("fullscreenmode"), kMCStackFullscreenModeEnumTypeInfo },
+		{ MCNAME ("HCAddressing"), kMCBooleanTypeInfo },
+		{ MCNAME ("icon"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("iconic"), kMCBooleanTypeInfo },
+		{ MCNAME ("liveResizing"), kMCBooleanTypeInfo },
+		{ MCNAME ("maxHeight"), kMCNumberTypeInfo },
+		{ MCNAME ("maxWidth"), kMCNumberTypeInfo },
+		{ MCNAME ("menuBar"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("minHeight"), kMCNumberTypeInfo },
+		{ MCNAME ("minWidth"), kMCNumberTypeInfo },
+		{ MCNAME ("resizable"), kMCBooleanTypeInfo },
+		{ MCNAME ("scaleFactor"), kMCNumberTypeInfo },
+		{ MCNAME ("startUpIconic"), kMCBooleanTypeInfo },
+		{ MCNAME ("style"), kMCStackStyleEnumTypeInfo },
+		{ MCNAME ("title"), kMCStringTypeInfo },
+		{ MCNAME ("underlineLinks"), kMCOptionalBooleanTypeInfo },
+		{ MCNAME ("windowManagerPlace"), kMCBooleanTypeInfo },
+		{ MCNAME ("windowShape"), kMCOptionalObjectIdCustomTypeInfo },
+
+		/* FIXME decorations (record?) */
+
+		/* FIXME maybe handle differently? */
+		{ MCNAME ("stackFiles"), kMCArrayTypeInfo },
+
 		{ nil, kMCNullTypeInfo },
 	};
 	if (kStateRecordTypeInfo == NULL)
