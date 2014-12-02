@@ -1,4 +1,4 @@
-/* Copyright (C) 2003-2013 Runtime Revolution Ltd.
+/* Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -55,6 +55,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "styledtext.h"
 #include "flst.h"
 #include "widget.h"
+#include "typeinfo.h"
 
 #include "globals.h"
 #include "mctheme.h"
@@ -5025,6 +5026,73 @@ MCObject::PopulateState (MCRecordRef x_state)
 	/* FIXME fill in the state record */
 
 	return true;
+}
+
+bool
+MCObject::PopulateStateField (const char *p_name,
+                              MCValueRef p_value,
+                              MCRecordRef x_state)
+{
+	MCAssert (p_name != nil);
+	MCAssert (p_value != nil);
+	MCAssert (x_state != nil);
+
+	return MCRecordStoreValue (x_state, MCNAME(p_name), p_value);
+}
+
+bool
+MCObject::PopulateStateField (const char *p_name,
+                              bool p_value,
+                              MCRecordRef x_state)
+{
+	MCValueRef t_value = p_value ? kMCTrue : kMCFalse;
+	return PopulateStateField (p_name, t_value, x_state);
+}
+
+bool
+MCObject::PopulateStateField (const char *p_name,
+                              real64_t p_value,
+                              MCRecordRef x_state)
+{
+	MCAutoNumberRef t_value;
+	if (!MCNumberCreateWithReal (p_value, &t_value))
+		return false;
+	return PopulateStateField (p_name, (MCValueRef) *t_value, x_state);
+}
+
+bool
+MCObject::PopulateStateField (const char *p_name,
+                              integer_t p_value,
+                              MCRecordRef x_state)
+{
+	MCAutoNumberRef t_value;
+	if (!MCNumberCreateWithInteger (p_value, &t_value)) return false;
+	return PopulateStateField (p_name, (MCValueRef) *t_value, x_state);
+}
+
+bool
+MCObject::PopulateStateField (const char *p_name,
+                              uinteger_t p_value,
+                              MCRecordRef x_state)
+{
+	MCAutoNumberRef t_value;
+	if (!MCNumberCreateWithUnsignedInteger (p_value, &t_value))
+		return false;
+	return PopulateStateField (p_name, (MCValueRef) *t_value, x_state);
+}
+
+bool
+MCObject::PopulateStateField (const char *p_name,
+                              MCObject *p_value,
+                              MCRecordRef x_state)
+{
+	MCAutoValueRef t_value;
+	if (p_value == NULL)
+		t_value = MCValueRetain (kMCNull);
+	else
+		if (!MCObjectIdValueFromInstance (&p_value->GetObjectId (), &t_value))
+			return false;
+	return PopulateStateField (p_name, *t_value, x_state);
 }
 
 bool

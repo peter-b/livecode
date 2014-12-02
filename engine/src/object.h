@@ -1,4 +1,4 @@
-/* Copyright (C) 2003-2013 Runtime Revolution Ltd.
+/* Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -284,6 +284,17 @@ protected:
 	 * from it.  Should be overridden by subclasses.  Chain up to
 	 * the superclass's implementation. */
 	virtual bool PopulateState (MCRecordRef x_state);
+
+	/* Convenience function to be called by per-class PopulateState()
+	 * implementations.  p_name is converted to an MCNameRef; p_value
+	 * is converted to an appropriate MCValueRef which is stored in
+	 * the field of x_state identified by p_name. */
+	static bool PopulateStateField (const char *p_name, MCValueRef p_value, MCRecordRef x_state);
+	static bool PopulateStateField (const char *p_name, bool p_value, MCRecordRef x_state);
+	static bool PopulateStateField (const char *p_name, real64_t p_value, MCRecordRef x_state);
+	static bool PopulateStateField (const char *p_name, integer_t p_value, MCRecordRef x_state);
+	static bool PopulateStateField (const char *p_name, uinteger_t p_value, MCRecordRef x_state);
+	static bool PopulateStateField (const char *p_name, MCObject *p_value, MCRecordRef x_state);
 
 	/* Called by ExportSharedState() to determine whether the object
 	 * has per-card data for p_card.  Should return true only if the
