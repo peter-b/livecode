@@ -86,7 +86,7 @@ MCObjectPropertyTable MCPlayer::kPropertyTable =
 ////////////////////////////////////////////////////////////////
 
 bool
-MCPlayer::PopulateState (MCRecordRef x_state) const
+MCPlayer::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

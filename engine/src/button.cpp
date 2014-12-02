@@ -4769,7 +4769,7 @@ IO_stat MCButton::load(IO_handle stream, uint32_t version)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCButton::PopulateState (MCRecordRef x_state) const
+MCButton::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

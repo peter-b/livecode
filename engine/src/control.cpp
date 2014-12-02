@@ -1996,7 +1996,7 @@ MCObject *MCControl::hittest(int32_t x, int32_t y)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCControl::PopulateState (MCRecordRef x_state) const
+MCControl::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

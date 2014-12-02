@@ -2839,7 +2839,7 @@ IO_stat MCGraphic::load(IO_handle stream, uint32_t version)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCGraphic::PopulateState (MCRecordRef x_state) const
+MCGraphic::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

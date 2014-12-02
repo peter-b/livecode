@@ -4827,7 +4827,7 @@ bool MCObject::visit(MCVisitStyle p_style, uint32_t p_part, MCObjectVisitor *p_v
 ///////////////////////////////////////////////////////////////////////////////
 
 bool
-MCObject::PopulateState (MCRecordRef x_state) const
+MCObject::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));
@@ -4839,7 +4839,7 @@ MCObject::PopulateState (MCRecordRef x_state) const
 }
 
 bool
-MCObject::HasSharedState (MCCard *p_card) const
+MCObject::HasSharedState (MCCard *p_card)
 {
 	/* The base class does not support per-card data. */
 	return false;
@@ -4847,7 +4847,7 @@ MCObject::HasSharedState (MCCard *p_card) const
 
 bool
 MCObject::PopulateSharedState (MCCard *p_card,
-                               MCRecordRef x_shared) const
+                               MCRecordRef x_shared)
 {
 	/* The base class does not support per-card data. */
 	return true;
@@ -4902,7 +4902,7 @@ MCObject::GetSharedStateTypeInfo (MCTypeInfoRef & r_type_info) const
 }
 
 bool
-MCObject::ExportState (MCRecordRef & r_state) const
+MCObject::ExportState (MCRecordRef & r_state)
 {
 	/* Get the type info and create the state record */
 	MCTypeInfoRef t_type_info;
@@ -4964,7 +4964,7 @@ MCObject::ExportCustomState (MCArrayRef & r_custom) const
 
 bool
 MCObject::ExportSharedState (MCCard *p_card,
-                             MCRecordRef & r_shared) const
+                             MCRecordRef & r_shared)
 {
 	/* Get the type info */
 	MCTypeInfoRef t_shared_typeinfo;

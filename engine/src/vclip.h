@@ -34,7 +34,7 @@ class MCVideoClip : public MCObject
 
 	////////// STATE RECORDS
 
-	virtual bool PopulateState (MCRecordRef x_state) const;
+	virtual bool PopulateState (MCRecordRef x_state);
 	virtual bool ApplyState (MCRecordRef p_state);
 
 public:

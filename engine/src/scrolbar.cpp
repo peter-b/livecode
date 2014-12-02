@@ -1398,7 +1398,7 @@ IO_stat MCScrollbar::load(IO_handle stream, uint32_t version)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCScrollbar::PopulateState (MCRecordRef x_state) const
+MCScrollbar::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

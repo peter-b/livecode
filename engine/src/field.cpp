@@ -3493,7 +3493,7 @@ bool MCField::IsCursorMovementVisual()
 ////////////////////////////////////////////////////////////////
 
 bool
-MCField::PopulateState (MCRecordRef x_state) const
+MCField::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

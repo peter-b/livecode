@@ -285,7 +285,7 @@ protected:
 	 * returned by GetStateTypeInfo or some MCRecord type derived
 	 * from it.  Should be overridden by subclasses.  Chain up to
 	 * the superclass's implementation. */
-	virtual bool PopulateState (MCRecordRef x_state) const;
+	virtual bool PopulateState (MCRecordRef x_state);
 
 	/* Called by ExportSharedState() to determine whether the object
 	 * has per-card data for p_card.  Should return true only if the
@@ -293,7 +293,7 @@ protected:
 	 * p_card.  This must only be overridden in classes that actually
 	 * support per-card data.  Chain up to the superclass's
 	 * implementation. */
-	virtual bool HasSharedState (MCCard *p_card) const;
+	virtual bool HasSharedState (MCCard *p_card);
 
 	/* Called by ExportSharedState() to fill in a record structure
 	 * with the object's per-card data. x_shared will be either the
@@ -301,7 +301,7 @@ protected:
 	 * derived from it.  This must only be overridden in classes that
 	 * actually support per-card data.  Chain up to the superclass's
 	 * implementation. */
-	virtual bool PopulateSharedState (MCCard *p_card, MCRecordRef x_shared) const;
+	virtual bool PopulateSharedState (MCCard *p_card, MCRecordRef x_shared);
 
 	/* Called by ImportState() to apply the values in a record
 	 * structure to the object's properties. p_state will be
@@ -888,7 +888,7 @@ public:
 	virtual bool GetSharedStateTypeInfo (MCTypeInfoRef & r_type_info) const;
 
 	/* Export the object's state as a record. */
-	bool ExportState (MCRecordRef & r_state) const;
+	bool ExportState (MCRecordRef & r_state);
 	/* Export the object's custom properties as an array. */
 	bool ExportCustomState (MCArrayRef & r_custom) const;
 	/* Export the object's per-card properties as a record.  N.b. that
@@ -896,7 +896,7 @@ public:
 	 * return true and set r_shared to nil.  It's therefore important
 	 * to always check the value of r_shared after calling this
 	 * method. */
-	bool ExportSharedState (MCCard *p_card, MCRecordRef & r_shared) const;
+	bool ExportSharedState (MCCard *p_card, MCRecordRef & r_shared);
 
 	/* Import the object's state from a record */
 	bool ImportState (MCRecordRef p_state);

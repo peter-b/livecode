@@ -321,7 +321,7 @@ IO_stat MCColors::load(IO_handle stream, uint32_t version)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCColors::PopulateState (MCRecordRef x_state) const
+MCColors::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

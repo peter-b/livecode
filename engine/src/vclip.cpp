@@ -301,7 +301,7 @@ IO_stat MCVideoClip::load(IO_handle stream, uint32_t version)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCVideoClip::PopulateState (MCRecordRef x_state) const
+MCVideoClip::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

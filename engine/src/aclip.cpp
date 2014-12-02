@@ -1068,7 +1068,7 @@ void MCS_setplayloudness(uint2 p_loudness)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCAudioClip::PopulateState (MCRecordRef x_state) const
+MCAudioClip::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

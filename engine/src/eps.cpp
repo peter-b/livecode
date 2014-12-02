@@ -765,7 +765,7 @@ Boolean MCEPS::import(MCStringRef fname, IO_handle stream)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCEPS::PopulateState (MCRecordRef x_state) const
+MCEPS::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

@@ -3719,7 +3719,7 @@ bool MCCard::recomputefonts(MCFontRef p_parent_font)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCCard::PopulateState (MCRecordRef x_state) const
+MCCard::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));

@@ -3372,7 +3372,7 @@ void MCStack::setasscriptonly(MCStringRef p_script)
 ////////////////////////////////////////////////////////////////
 
 bool
-MCStack::PopulateState (MCRecordRef x_state) const
+MCStack::PopulateState (MCRecordRef x_state)
 {
 	MCTypeInfoRef t_typeinfo;
 	MCAssert(GetStateTypeInfo(t_typeinfo));
