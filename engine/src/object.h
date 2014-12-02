@@ -1333,6 +1333,10 @@ private:
 	/* The type info of the class's state record (used by GetStateTypeInfo()). */
 	static MCTypeInfoRef kStateRecordTypeInfo;
 
+	/* Format a specific color as an optional string and store it in a state
+	 * record. */
+	bool PopulateStateColorField (const char *p_cstring, Properties which, MCRecordRef x_state);
+
 	////////// OBJECT ID MANAGEMENT
 protected:
 	/* MCConcreteObjectId is an MCObjectId that's permanently and directly

@@ -5023,9 +5023,107 @@ MCObject::PopulateState (MCRecordRef x_state)
 	MCAssert(GetStateTypeInfo(t_typeinfo));
 	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (x_state), t_typeinfo));
 
-	/* FIXME fill in the state record */
+	uinteger_t t_blendlevel = 100 - blendlevel;
+	bool t_show_focus_border = (0 == (extraflags & EF_NO_FOCUS_BORDER));
 
-	return true;
+	MCAutoEnumRef t_ink;
+	if (!MCInkNamesEnumFromBits ((intenum_t) ink, &t_ink))
+		return false;
+
+	MCRectangle t_rect;
+	MCAutoRecordRef t_rect_value;
+	t_rect = getrectangle (false);
+	if (!MCRectangleRecordFromStruct (t_rect, &t_rect_value))
+		return false;
+
+	MCObject *t_behavior;
+	if (parent_script != nil)
+		t_behavior = parent_script->GetParent()->GetObject();
+
+	/* Fonts are complicated, so deal with them separately. */
+	MCNameRef t_fontname;
+	uint16_t t_fontsize, t_fontstyle;
+	getfontattsnew (t_fontname, t_fontsize, t_fontstyle);
+
+	MCAutoValueRef t_style_set;
+	if ((m_font_flags & FF_HAS_TEXTFONT) != 0 &&
+	    !PopulateStateField ("textFont", MCNameGetString (t_fontname), x_state))
+		return false;
+	if ((m_font_flags & FF_HAS_TEXTSIZE) != 0 &&
+	    !PopulateStateField ("textSize", (uinteger_t) t_fontsize, x_state))
+		return false;
+	if ((m_font_flags & FF_HAS_TEXTSTYLE) != 0 &&
+	    (!(MCTextStyleEnumSetFromFlags (t_fontstyle,
+	                                    (MCProperSetRef &) &t_style_set) &&
+	       PopulateStateField ("textStyle", *t_style_set, x_state))))
+		return false;
+
+	/* Remaining fields */
+	return
+		PopulateStateField ("altId", altid, x_state) &&
+		PopulateStateField ("behavior", t_behavior, x_state) &&
+		PopulateStateField ("blendLevel", t_blendlevel, x_state) &&
+		PopulateStateField ("borderWidth", (uinteger_t) borderwidth, x_state) &&
+		PopulateStateField ("cantSelect", !(isselectable(true)), x_state) &&
+		PopulateStateField ("ink", *t_ink, x_state) &&
+		PopulateStateField ("name", getname(), x_state) &&
+		PopulateStateField ("rect", *t_rect_value, x_state) &&
+		PopulateStateField ("script", _getscript(), x_state) &&
+		PopulateStateField ("shadowOffset", (integer_t) shadowoffset, x_state) &&
+		PopulateStateField ("showBorder", getflag(F_SHOW_BORDER), x_state) &&
+		PopulateStateField ("showFocusBorder", t_show_focus_border, x_state) &&
+		PopulateStateField ("textHeight", (uinteger_t) gettextheight (), x_state) &&
+		PopulateStateField ("threeD", getflag (F_3D), x_state) &&
+		PopulateStateField ("visible", getflag (F_VISIBLE), x_state) &&
+		PopulateStateField ("backPattern", resolveimageid (getpatternid (P_BACK_PATTERN)), x_state) &&
+		PopulateStateField ("borderPattern", resolveimageid (getpatternid (P_BORDER_PATTERN)), x_state) &&
+		PopulateStateField ("bottomPattern", resolveimageid (getpatternid (P_BOTTOM_PATTERN)), x_state) &&
+		PopulateStateField ("focusPattern", resolveimageid (getpatternid (P_FOCUS_PATTERN)), x_state) &&
+		PopulateStateField ("forePattern", resolveimageid (getpatternid (P_FORE_PATTERN)), x_state) &&
+		PopulateStateField ("hilitePattern", resolveimageid (getpatternid (P_HILITE_PATTERN)), x_state) &&
+		PopulateStateField ("shadowPattern", resolveimageid (getpatternid (P_SHADOW_PATTERN)), x_state) &&
+		PopulateStateField ("topPattern", resolveimageid (getpatternid (P_TOP_PATTERN)), x_state) &&
+		PopulateStateColorField ("backColor", P_BACK_COLOR, x_state) &&
+		PopulateStateColorField ("borderColor", P_BORDER_COLOR, x_state) &&
+		PopulateStateColorField ("bottomColor", P_BOTTOM_COLOR, x_state) &&
+		PopulateStateColorField ("focusColor", P_FOCUS_COLOR, x_state) &&
+		PopulateStateColorField ("foreColor", P_FORE_COLOR, x_state) &&
+		PopulateStateColorField ("hiliteColor", P_HILITE_COLOR, x_state) &&
+		PopulateStateColorField ("shadowColor", P_SHADOW_COLOR, x_state) &&
+		PopulateStateColorField ("topColor", P_TOP_COLOR, x_state);
+}
+
+bool
+MCObject::PopulateStateColorField (const char *p_name,
+                                   Properties which,
+                                   MCRecordRef x_state)
+{
+	MCExecContext t_ctxt(nil, nil, nil); /* Temporary (and unused!) */
+	MCInterfaceNamedColor t_color_info;
+	MCInterfaceNamedColorInit (t_ctxt, t_color_info);
+
+	bool t_has_color;
+	MCAutoValueRef t_color_value;
+	bool t_success;
+
+	t_has_color = GetColor (t_ctxt, which, false, t_color_info);
+	if (!t_has_color)
+	{
+		t_color_value = MCValueRetain (kMCNull);
+		t_success = true;
+	}
+	else
+	{
+		MCInterfaceNamedColorFormat (t_ctxt, t_color_info,
+		                             (MCStringRef &) &t_color_value);
+		t_success = !t_ctxt.HasError ();
+	}
+
+	if (t_success)
+		t_success = PopulateStateField (p_name, *t_color_value, x_state);
+
+	MCInterfaceNamedColorFree (t_ctxt, t_color_info);
+	return t_success;
 }
 
 bool
@@ -5134,7 +5232,44 @@ bool
 MCObject::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
-		{ nil, kMCNullTypeInfo },
+		{ MCNAME ("altId"), kMCNumberTypeInfo },
+		{ MCNAME ("behavior"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("blendLevel"), kMCNumberTypeInfo },
+		{ MCNAME ("borderWidth"), kMCNumberTypeInfo },
+		{ MCNAME ("cantSelect"), kMCBooleanTypeInfo },
+		{ MCNAME ("ink"), kMCInkNamesEnumTypeInfo },
+		{ MCNAME ("name"), kMCStringTypeInfo },
+		{ MCNAME ("rect"), kMCRectangleRecordTypeInfo },
+		{ MCNAME ("script"), kMCStringTypeInfo },
+		{ MCNAME ("shadowOffset"), kMCNumberTypeInfo },
+		{ MCNAME ("showBorder"), kMCBooleanTypeInfo },
+		{ MCNAME ("showFocusBorder"), kMCBooleanTypeInfo },
+		{ MCNAME ("textFont"), kMCOptionalStringTypeInfo },
+		{ MCNAME ("textHeight"), kMCOptionalNumberTypeInfo },
+		{ MCNAME ("textSize"), kMCOptionalNumberTypeInfo },
+		{ MCNAME ("textStyle"), kMCOptionalProperSetTypeInfo },
+		{ MCNAME ("threeD"), kMCBooleanTypeInfo },
+		{ MCNAME ("visible"), kMCOptionalBooleanTypeInfo },
+
+		{ MCNAME ("backPattern"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("borderPattern"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("bottomPattern"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("focusPattern"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("forePattern"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("hilitePattern"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("shadowPattern"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("topPattern"), kMCOptionalObjectIdCustomTypeInfo },
+
+		{ MCNAME ("backColor"), kMCOptionalStringTypeInfo },
+		{ MCNAME ("borderColor"), kMCOptionalStringTypeInfo },
+		{ MCNAME ("bottomColor"), kMCOptionalStringTypeInfo },
+		{ MCNAME ("focusColor"), kMCOptionalStringTypeInfo },
+		{ MCNAME ("foreColor"), kMCOptionalStringTypeInfo },
+		{ MCNAME ("hiliteColor"), kMCOptionalStringTypeInfo },
+		{ MCNAME ("shadowColor"), kMCOptionalStringTypeInfo },
+		{ MCNAME ("topColor"), kMCOptionalStringTypeInfo },
+
+		{ nil, kMCNullTypeInfo }, /* Custodian */
 	};
 	if (kStateRecordTypeInfo == NULL)
 	{
