@@ -1,4 +1,4 @@
-/* Copyright (C) 2003-2013 Runtime Revolution Ltd.
+/* Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -56,6 +56,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "vclip.h"
 #include "redraw.h"
 #include "widget.h"
+#include "typeinfo.h"
 
 #include "globals.h"
 #include "mctheme.h"
@@ -3765,7 +3766,48 @@ MCCard::PopulateState (MCRecordRef x_state)
 	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (x_state),
 	                                       t_typeinfo));
 
-	/* FIXME fill in the state record */
+	/* Build a list of the controls used by the card */
+	MCAutoProperListRef t_children;
+	if (objptrs != nil)
+	{
+		MCProperListRef t_build_children;
+		if (!MCProperListCreateMutable (t_build_children))
+			return false;
+
+		MCObjptr *t_iter = objptrs;
+		do {
+			const MCObjectId *t_child_id = &t_iter->getref()->GetObjectId();
+
+			MCAutoValueRef t_child_value;
+			if (!(MCObjectIdValueFromInstance (t_child_id, &t_child_value) &&
+			      MCProperListPushElementOntoBack (t_build_children,
+			                                       *t_child_value)))
+			{
+				MCValueRelease (t_build_children);
+				return false;
+			}
+
+			t_iter = t_iter->next();
+		} while (t_iter != objptrs);
+		MCProperListCopyAndRelease (t_build_children, &t_children);
+	}
+	else
+	{
+		t_children = MCValueRetain (kMCEmptyProperList);
+	}
+
+	/* Get the layer number for this card */
+	uint16_t t_layer;
+	getstack()->count (CT_CARD, CT_UNDEFINED, this, t_layer);
+
+	if (!(PopulateStateField ("cantDelete", getflag (F_C_CANT_DELETE), x_state) &&
+	      PopulateStateField ("children", *t_children, x_state) &&
+	      PopulateStateField ("defaultButton", getdefbutton (), x_state) &&
+	      PopulateStateField ("dontSearch", getflag (F_C_DONT_SEARCH), x_state) &&
+	      PopulateStateField ("mark", getflag (F_MARKED), x_state) &&
+	      PopulateStateField ("layer", t_layer, x_state)))
+		return false;
+
 	return MCObject::PopulateState (x_state);
 }
 
@@ -3786,6 +3828,13 @@ bool
 MCCard::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
+		{ MCNAME ("cantDelete"), kMCBooleanTypeInfo },
+		{ MCNAME ("defaultButton"), kMCOptionalObjectIdCustomTypeInfo },
+		{ MCNAME ("dontSearch"), kMCBooleanTypeInfo },
+		{ MCNAME ("layer"), kMCNumberTypeInfo },
+		{ MCNAME ("mark"), kMCBooleanTypeInfo },
+		{ MCNAME ("children"), kMCProperListTypeInfo },
+
 		{ nil, kMCNullTypeInfo },
 	};
 	if (kStateRecordTypeInfo == NULL)
