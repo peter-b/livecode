@@ -1,4 +1,4 @@
-/* Copyright (C) 2003-2013 Runtime Revolution Ltd.
+/* Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -308,7 +308,22 @@ MCVideoClip::PopulateState (MCRecordRef x_state)
 	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (x_state),
 	                                       t_typeinfo));
 
-	/* FIXME fill in the state record */
+	MCAutoDataRef t_frames;
+	if (!MCDataCreateWithBytes ((byte_t *) frames, size, &t_frames))
+		return false;
+
+	if (getflag (F_FRAME_RATE) &&
+	    !PopulateStateField ("frameRate", (integer_t) framerate, x_state))
+		return false;
+
+	if (getflag (F_SCALE_FACTOR) &&
+		!PopulateStateField ("scale", scale, x_state))
+		return false;
+
+	if (!(PopulateStateField ("dontRefresh", getflag(F_DONT_REFRESH), x_state) &&
+	      PopulateStateField ("frames", *t_frames, x_state)))
+		return false;
+
 	return MCObject::PopulateState (x_state);
 }
 
@@ -329,6 +344,11 @@ bool
 MCVideoClip::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
+		{ MCNAME ("dontRefresh"), kMCBooleanTypeInfo },
+		{ MCNAME ("frameRate"), kMCOptionalNumberTypeInfo },
+		{ MCNAME ("scale"), kMCOptionalNumberTypeInfo },
+		{ MCNAME ("frames"), kMCDataTypeInfo },
+
 		{ nil, kMCNullTypeInfo },
 	};
 	if (kStateRecordTypeInfo == NULL)
