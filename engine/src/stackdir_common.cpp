@@ -497,7 +497,6 @@ void
 MCStackdirIOCommit (MCStackdirIORef op)
 {
 	MCAssert (op != nil);
-	MCStackarrInitialize ();
 
 	switch (op->m_type)
 	{

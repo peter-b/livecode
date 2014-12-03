@@ -31,20 +31,17 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
  * Constants
  * ---------------------------------------------------------------- */
 
-extern MCNameRef kMCStackarrCustomKey;
-extern MCNameRef kMCStackarrInternalKey;
-extern MCNameRef kMCStackarrKindKey;
-extern MCNameRef kMCStackarrLiteralKey;
-extern MCNameRef kMCStackarrParentKey;
-extern MCNameRef kMCStackarrSharedKey;
-extern MCNameRef kMCStackarrTypeKey;
+#define kMCStackarrCustomKey   MCNAME("_custom")
+#define kMCStackarrInternalKey MCNAME("_internal")
+#define kMCStackarrKindKey     MCNAME("_kind")
+#define kMCStackarrLiteralKey  MCNAME("_literal")
+#define kMCStackarrParentKey   MCNAME("_parent")
+#define kMCStackarrSharedKey   MCNAME("_shared")
+#define kMCStackarrTypeKey     MCNAME("_type")
 
 /* ----------------------------------------------------------------
  * High-level stack array functions.
  * ---------------------------------------------------------------- */
-
-/* Initialize stack array support */
-void MCStackarrInitialize (void);
 
 bool MCStackarrCaptureStack (MCStack *stack, MCArrayRef & r_typed_state);
 

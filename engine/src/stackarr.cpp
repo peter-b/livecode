@@ -39,14 +39,6 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
  * File-local declarations
  * ================================================================ */
 
-MCNameRef kMCStackarrCustomKey;
-MCNameRef kMCStackarrInternalKey;
-MCNameRef kMCStackarrKindKey;
-MCNameRef kMCStackarrLiteralKey;
-MCNameRef kMCStackarrParentKey;
-MCNameRef kMCStackarrSharedKey;
-MCNameRef kMCStackarrTypeKey;
-
 /* Create a name from a UUID */
 static bool MCStackarrNameCreateFromUuid (const MCUuid & p_uuid, MCNameRef & r_name);
 
@@ -280,28 +272,6 @@ MCStackarrCaptureObject (MCObject *object,
  * ================================================================ */
 
 /* ----------------------------------------------------------------
- * [Public] Initialisation
- * ---------------------------------------------------------------- */
-
-void
-MCStackarrInitialize (void)
-{
-	static bool s_once = false;
-	if (s_once) return;
-
-	/* Constants */
-	kMCStackarrCustomKey   = MCNAME("_custom");
-	kMCStackarrInternalKey = MCNAME("_internal");
-	kMCStackarrKindKey     = MCNAME("_kind");
-	kMCStackarrLiteralKey  = MCNAME("_literal");
-	kMCStackarrParentKey   = MCNAME("_parent");
-	kMCStackarrSharedKey   = MCNAME("_shared");
-	kMCStackarrTypeKey     = MCNAME("_type");
-
-	s_once = true;
-}
-
-/* ----------------------------------------------------------------
  * [Public] Stack capture
  * ---------------------------------------------------------------- */
 
@@ -310,7 +280,6 @@ MCStackarrCaptureStack (MCStack * stack,
                         MCArrayRef & r_typed_state)
 {
 	MCAssert (stack != nil);
-	MCStackarrInitialize ();
 
 	/* Create the result array */
 	MCAutoArrayRef t_state;
