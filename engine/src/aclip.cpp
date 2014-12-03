@@ -1,4 +1,4 @@
-/* Copyright (C) 2003-2013 Runtime Revolution Ltd.
+/* Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -33,6 +33,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "param.h"
 #include "mcerror.h"
 #include "osspec.h"
+#include "typeinfo.h"
 
 #include "globals.h"
 #include "exec.h"
@@ -1084,7 +1085,43 @@ MCAudioClip::PopulateState (MCRecordRef x_state)
 	MCAssert(MCRecordTypeInfoIsDerivedFrom(MCValueGetTypeInfo (x_state),
 	                                       t_typeinfo));
 
-	/* FIXME fill in the state record */
+	/* Logic copied from MCAudioClip::save */
+	if (osamples != nil)
+	{
+		size = osize;
+		delete samples;
+		samples = osamples;
+		osamples = NULL;
+		format = oformat;
+		nchannels = onchannels;
+		swidth = oswidth;
+		rate = orate;
+	}
+
+	MCAutoDataRef t_samples;
+	if (!MCDataCreateWithBytes ((byte_t *) samples, size, &t_samples))
+		return false;
+
+	MCAutoEnumRef t_format;
+	if (!MCAudioClipFormatEnumFromBits ((enum Audio_format) format, &t_format))
+		return false;
+
+	MCAutoEnumRef t_play_destination;
+	bool t_play_external;
+	t_play_external = (0 == (flags & F_EXTERNAL));
+	if (!MCPlayDestinationEnumFromBits (t_play_external ? 0 : 1,
+	                                    &t_play_destination))
+		return false;
+
+	if (!(PopulateStateField ("format", *t_format, x_state) &&
+	      PopulateStateField ("playDestination", *t_play_destination, x_state) &&
+	      PopulateStateField ("playLoudness", loudness, x_state) &&
+	      PopulateStateField ("samples", *t_samples, x_state) &&
+	      PopulateStateField ("channels", nchannels, x_state) &&
+	      PopulateStateField ("sampleSize", swidth, x_state) &&
+	      PopulateStateField ("sampleRate", rate, x_state)))
+		return false;
+
 	return MCObject::PopulateState (x_state);
 }
 
@@ -1105,6 +1142,14 @@ bool
 MCAudioClip::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
+		{ MCNAME ("format"), kMCAudioClipFormatEnumTypeInfo },
+		{ MCNAME ("playDestination"), kMCPlayDestinationEnumTypeInfo },
+		{ MCNAME ("playLoudness"), kMCNumberTypeInfo },
+		{ MCNAME ("samples"), kMCDataTypeInfo },
+		{ MCNAME ("channels"), kMCNumberTypeInfo },
+		{ MCNAME ("sampleSize"), kMCNumberTypeInfo }, /* Bytes per sample */
+		{ MCNAME ("sampleRate"), kMCNumberTypeInfo }, /* Hz */
+
 		{ nil, kMCNullTypeInfo },
 	};
 	if (kStateRecordTypeInfo == NULL)
