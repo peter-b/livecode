@@ -1168,6 +1168,15 @@ public:
     void GetRevAvailableVariables(MCExecContext& ctxt, MCNameRef p_key, MCStringRef& r_variables);
     void GetRevAvailableVariablesNonArray(MCExecContext& ctxt, MCStringRef& r_variables);
 #endif
+
+	////////// STATIC MEMBER INITIALIZATION
+
+	/* Initialise values of all static class members.  Call only once at program
+	 * start-up. */
+	static bool InitializeStatic (void);
+	/* Finalise values of all class members.  Call only once at program
+	 * shutdown. */
+	static void FinalizeStatic (void);
     
 //////////
 				
@@ -1263,6 +1272,13 @@ private:
 	//   done via measuretext() in a safe way.
 	void mapfont(void);
 	void unmapfont(void);
+
+	////////// STATE RECORDS
+
+	/* The type info of the class's state record (used by GetStateTypeInfo()). */
+	static MCTypeInfoRef kStateRecordTypeInfo;
+
+	//////////
 
 	friend class MCObjectHandle;
 	friend class MCEncryptedStack;

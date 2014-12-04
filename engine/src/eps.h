@@ -83,5 +83,21 @@ public:
 	/* Return the typeinfo for the record type used by this object's
 	 * ImportState() and ExportState() methods. */
 	virtual bool GetStateTypeInfo (MCTypeInfoRef & r_type_info) const;
+
+	////////// STATIC MEMBER INITIALIZATION
+
+	/* Initialise values of all static class members.  Call only once at program
+	 * start-up. */
+	static bool InitializeStatic (void);
+	/* Finalise values of all class members.  Call only once at program
+	 * shutdown. */
+	static void FinalizeStatic (void);
+
+private:
+
+	////////// STATE RECORDS
+
+	/* The type info of the class's state record (used by GetStateTypeInfo()). */
+	static MCTypeInfoRef kStateRecordTypeInfo;
 };
 #endif

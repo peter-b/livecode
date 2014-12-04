@@ -4876,21 +4876,19 @@ MCObject::ApplySharedState (MCCard *p_card,
 bool
 MCObject::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
-	static MCTypeInfoRef s_type_info = NULL;
-
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
 		{ nil, kMCNullTypeInfo },
 	};
-	if (s_type_info == NULL)
+	if (kStateRecordTypeInfo == NULL)
 	{
 		if (!(MCRecordTypeInfoCreate (s_type_info_fields,
 									 -1,
 									 kMCNullTypeInfo,
-									  s_type_info)))
+									 kStateRecordTypeInfo)))
 			return false;
 	}
 
-	r_type_info = s_type_info;
+	r_type_info = kStateRecordTypeInfo;
 	return true;
 }
 
@@ -5110,6 +5108,24 @@ MCObject::SetUuid (MCUuid p_uuid)
 	uuid = p_uuid;
 	have_uuid = true;
 	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+MCTypeInfoRef MCObject::kStateRecordTypeInfo;
+
+bool
+MCObject::InitializeStatic (void)
+{
+	kStateRecordTypeInfo = nil;
+	return true;
+}
+
+void
+MCObject::FinalizeStatic (void)
+{
+	MCValueRelease (kStateRecordTypeInfo);
+	kStateRecordTypeInfo = nil;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

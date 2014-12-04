@@ -474,6 +474,15 @@ public:
     void SetEnabledOfCharChunk(MCExecContext& ctxt, uint32_t p_part, int32_t p_start, int32_t p_finish, bool setting);
     void SetHiliteOfCharChunk(MCExecContext& ctxt, uint32_t p_part, int32_t p_start, int32_t p_finish, bool setting);
     void SetUnhiliteOfCharChunk(MCExecContext& ctxt, uint32_t p_part, int32_t p_start, int32_t p_finish, bool setting);
+
+	////////// STATIC MEMBER INITIALIZATION
+
+	/* Initialise values of all static class members.  Call only once at program
+	 * start-up. */
+	static bool InitializeStatic (void);
+	/* Finalise values of all class members.  Call only once at program
+	 * shutdown. */
+	static void FinalizeStatic (void);
     
 private:
 	int4 formattedtabwidth(void);
@@ -482,6 +491,13 @@ private:
 	void switchunicode(bool p_to_unicode);
 	// MW-2012-02-16: [[ IntrinsicUnicode]] Attempt to change everything back to native if possible.
 	void trytochangetonative(void);
+
+	////////// STATE RECORDS
+	
+	/* The type info of the class's state record (used by GetStateTypeInfo()). */
+	static MCTypeInfoRef kStateRecordTypeInfo;
+
+	//////////
 
 	friend class ButtonMenuCallback;
 };

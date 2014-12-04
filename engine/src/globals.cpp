@@ -43,6 +43,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "player.h"
 #include "image.h"
 #include "field.h"
+#include "cpalette.h"
 #include "mcerror.h"
 #include "util.h"
 #include "date.h"
@@ -953,6 +954,20 @@ bool X_open(int argc, MCStringRef argv[], MCStringRef envp[])
 		}
 #endif // _SERVER
 
+	/* UNCHECKED */ MCObject::InitializeStatic ();
+	/* UNCHECKED */ MCStack::InitializeStatic ();
+	/* UNCHECKED */ MCCard::InitializeStatic ();
+	/* UNCHECKED */ MCControl::InitializeStatic ();
+	/* UNCHECKED */ MCButton::InitializeStatic ();
+	/* UNCHECKED */ MCField::InitializeStatic ();
+	/* UNCHECKED */ MCScrollbar::InitializeStatic ();
+	/* UNCHECKED */ MCPlayer::InitializeStatic ();
+	/* UNCHECKED */ MCGraphic::InitializeStatic ();
+	/* UNCHECKED */ MCEPS::InitializeStatic ();
+	/* UNCHECKED */ MCAudioClip::InitializeStatic ();
+	/* UNCHECKED */ MCVideoClip::InitializeStatic ();
+	/* UNCHECKED */ MCColors::InitializeStatic ();
+
 	/* UNCHECKED */ MCStackSecurityCreateStack(MCtemplatestack);
 	MCtemplateaudio = new MCAudioClip;
 	MCtemplateaudio->init();
@@ -1160,6 +1175,20 @@ int X_close(void)
 		MCControl *gptr = MCsavegroupptr->remove(MCsavegroupptr);
 		delete gptr;
 	}
+
+	MCColors::FinalizeStatic ();
+	MCVideoClip::FinalizeStatic ();
+	MCAudioClip::FinalizeStatic ();
+	MCEPS::FinalizeStatic ();
+	MCGraphic::FinalizeStatic ();
+	MCPlayer::FinalizeStatic ();
+	MCScrollbar::FinalizeStatic ();
+	MCField::FinalizeStatic ();
+	MCButton::FinalizeStatic ();
+	MCControl::FinalizeStatic ();
+	MCCard::FinalizeStatic ();
+	MCStack::FinalizeStatic ();
+	MCObject::FinalizeStatic ();
 
 	// MW-2012-02-14: [[ FontRefs ]] Close the dispatcher before deleting it.
 	MCdispatcher -> close();

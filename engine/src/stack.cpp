@@ -3399,22 +3399,38 @@ MCStack::ApplyState (MCRecordRef p_state)
 bool
 MCStack::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
-	static MCTypeInfoRef s_type_info = NULL;
-
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
 		{ nil, kMCNullTypeInfo },
 	};
-	if (s_type_info == NULL)
+	if (kStateRecordTypeInfo == NULL)
 	{
 		MCTypeInfoRef t_super_type_info;
 		if (!(MCObject::GetStateTypeInfo (t_super_type_info) &&
 			  MCRecordTypeInfoCreate (s_type_info_fields,
 									 -1,
 									 t_super_type_info,
-									  s_type_info)))
+			                          kStateRecordTypeInfo)))
 			return false;
 	}
 
-	r_type_info = s_type_info;
+	r_type_info = kStateRecordTypeInfo;
 	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+MCTypeInfoRef MCStack::kStateRecordTypeInfo;
+
+bool
+MCStack::InitializeStatic (void)
+{
+	kStateRecordTypeInfo = nil;
+	return true;
+}
+
+void
+MCStack::FinalizeStatic (void)
+{
+	MCValueRelease (kStateRecordTypeInfo);
+	kStateRecordTypeInfo = nil;
 }

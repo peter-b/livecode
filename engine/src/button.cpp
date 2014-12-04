@@ -4796,22 +4796,38 @@ MCButton::ApplyState (MCRecordRef p_state)
 bool
 MCButton::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
-	static MCTypeInfoRef s_type_info = NULL;
-
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
 		{ nil, kMCNullTypeInfo },
 	};
-	if (s_type_info == NULL)
+	if (kStateRecordTypeInfo == NULL)
 	{
 		MCTypeInfoRef t_super_type_info;
 		if (!(MCControl::GetStateTypeInfo (t_super_type_info) &&
 			  MCRecordTypeInfoCreate (s_type_info_fields,
 									 -1,
 									 t_super_type_info,
-									  s_type_info)))
+			                          kStateRecordTypeInfo)))
 			return false;
 	}
 
-	r_type_info = s_type_info;
+	r_type_info = kStateRecordTypeInfo;
 	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+MCTypeInfoRef MCButton::kStateRecordTypeInfo;
+
+bool
+MCButton::InitializeStatic (void)
+{
+	kStateRecordTypeInfo = nil;
+	return true;
+}
+
+void
+MCButton::FinalizeStatic (void)
+{
+	MCValueRelease (kStateRecordTypeInfo);
+	kStateRecordTypeInfo = nil;
 }

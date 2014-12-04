@@ -166,5 +166,20 @@ public:
 	void SetEndValue(MCExecContext& ctxt, MCStringRef p_value);
 	void GetShowValue(MCExecContext& ctxt, bool& r_setting);
 	void SetShowValue(MCExecContext& ctxt, bool setting);
+
+	////////// STATIC MEMBER INITIALIZATION
+
+	/* Initialise values of all static class members.  Call only once at program
+	 * start-up. */
+	static bool InitializeStatic (void);
+	/* Finalise values of all class members.  Call only once at program
+	 * shutdown. */
+	static void FinalizeStatic (void);
+
+private:
+	////////// STATE RECORDS
+
+	/* The type info of the class's state record (used by GetStateTypeInfo()). */
+	static MCTypeInfoRef kStateRecordTypeInfo;
 };
 #endif

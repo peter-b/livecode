@@ -355,6 +355,15 @@ public:
     virtual void GetHiliteColor(MCExecContext& ctxt, MCInterfaceNamedColor& r_color);
     
     void GetStatus(MCExecContext& ctxt, intenum_t& r_status);
+
+	////////// STATIC MEMBER INITIALIZATION
+
+	/* Initialise values of all static class members.  Call only once at program
+	 * start-up. */
+	static bool InitializeStatic (void);
+	/* Finalise values of all class members.  Call only once at program
+	 * shutdown. */
+	static void FinalizeStatic (void);
     
     ////////////////////////////////////////////////////////////////////////////////
     // MCPlayer specific implementation for the platform player
@@ -420,6 +429,13 @@ public:
     // PM-2014-10-14: [[ Bug 13569 ]] Make sure changes to player are not visible in preOpenCard
     void attachplayer(void);
     void detachplayer(void);
+
+private:
+
+	////////// STATE RECORDS
+
+	/* The type info of the class's state record (used by GetStateTypeInfo()). */
+	static MCTypeInfoRef kStateRecordTypeInfo;
 };
 #endif
 
