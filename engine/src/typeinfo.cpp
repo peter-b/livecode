@@ -24,10 +24,13 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 bool
 MCEngineTypeInfoInitialize (void)
 {
-	return true;
+	return
+		MCTextStyleEnumTypeInfoInitialize ();
 }
 
 void
 MCEngineTypeInfoFinalize (void)
 {
+	MCValueRelease (kMCTextStyleEnumTypeInfo);
+	kMCTextStyleEnumTypeInfo = nil;
 }

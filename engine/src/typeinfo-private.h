@@ -22,4 +22,11 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 /* This header should only be included by typeinfo*.cpp files. */
 
+/* ----------------------------------------------------------------
+ * Initialization and finalization
+ * ---------------------------------------------------------------- */
+
+/* Create the text style enumerated type */
+bool MCTextStyleEnumTypeInfoInitialize(void);
+
 #endif /* !_MC_TYPEINFO_PRIVATE_H_ */
