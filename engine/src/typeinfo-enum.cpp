@@ -182,6 +182,7 @@ MCTextStyleEnumSetToFlags (MCProperSetRef p_set,
  * [Public] Typeinfo constants
  * ================================================================ */
 
+MCTypeInfoRef kMCInkNamesEnumTypeInfo;
 MCTypeInfoRef kMCTextStyleEnumTypeInfo;
 
 /* ================================================================
@@ -232,3 +233,48 @@ MCTypeInfoFromExecTypeInfo (MCExecEnumTypeInfo *p_info,
 	return t_success;
 }
 
+bool
+MCTypeInfoGetValueWithExecTypeInfo (MCTypeInfoRef p_typeinfo,
+                                    MCExecEnumTypeInfo *p_info,
+                                    MCEnumRef p_enum,
+                                    intenum_t & r_bits)
+{
+	MCAssert (MCTypeInfoConforms (MCValueGetTypeInfo (p_enum),
+	                              p_typeinfo));
+
+	MCNameRef t_name = (MCNameRef) (MCEnumGetValue (p_enum));
+	const char *t_tag = MCStringGetCString (MCNameGetString (t_name));
+
+	/* Try to find a member of the exec enum that matches */
+	for (uindex_t i = 0; i < p_info->count; ++i)
+	{
+		if (0 == strcmp (t_tag, p_info->elements[i].tag))
+		{
+			r_bits = p_info->elements[i].value;
+			return true;
+		}
+	}
+
+	MCUnreachable (); /* No match found iff programming error */
+}
+
+bool
+MCTypeInfoMakeValueWithExecTypeInfo (MCTypeInfoRef p_typeinfo,
+                                     MCExecEnumTypeInfo *p_info,
+                                     intenum_t p_bits,
+                                     MCEnumRef & r_enum)
+{
+	/* Try to find a member of the exec enum that matches */
+	for (uindex_t i = 0; i < p_info->count; ++i)
+	{
+		if (p_bits == p_info->elements[i].value)
+		{
+			MCNewAutoNameRef t_name;
+			return
+				MCNameCreateWithCString (p_info->elements[i].tag, &t_name) &&
+				MCEnumCreate (p_typeinfo, *t_name, r_enum);
+		}
+	}
+
+	MCUnreachable (); /* No match found iff programming error */
+}

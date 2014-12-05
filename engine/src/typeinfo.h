@@ -43,6 +43,34 @@ extern MCTypeInfoRef kMCTextStyleEnumTypeInfo;
  * will be a named typeinfo with the specified p_name. */
 bool MCTypeInfoFromExecTypeInfo (MCExecEnumTypeInfo *p_info, MCNameRef p_name, MCTypeInfoRef & r_typeinfo);
 
+/* Turn an MCEnumRef into a C enumeration value using the specified
+ * type information. */
+bool MCTypeInfoGetValueWithExecTypeInfo (MCTypeInfoRef p_typeinfo, MCExecEnumTypeInfo *p_info, MCEnumRef p_enum, intenum_t & r_bits);
+/* Turn a C enumeration value into an MCEnumRef using the specified
+ * type information. */
+bool MCTypeInfoMakeValueWithExecTypeInfo (MCTypeInfoRef p_typeinfo, MCExecEnumTypeInfo *p_info, intenum_t p_bits, MCEnumRef & r_enum);
+
+/* Define the interface for an MCEnumRef type based on an exec
+ * interface enumerated typeinfo. */
+#define MC_TYPEINFO_DEFINE_EXEC_ENUM(tag)	  \
+	extern MCTypeInfoRef kMC##tag##EnumTypeInfo; \
+	static inline bool \
+	MC##tag##EnumFromBits (intenum_t p_bits, MCEnumRef & r_enum) \
+	{ return MCTypeInfoMakeValueWithExecTypeInfo (kMC##tag##EnumTypeInfo, \
+	                                              kMCInterface##tag##TypeInfo, \
+	                                              p_bits, r_enum); } \
+	static inline bool \
+	MC##tag##EnumToBits (MCEnumRef p_enum, intenum_t & r_bits) \
+	{ return MCTypeInfoGetValueWithExecTypeInfo (kMC##tag##EnumTypeInfo, \
+	                                             kMCInterface##tag##TypeInfo, \
+	                                             p_enum, r_bits); }
+
+/* ----------------------------------------------------------------
+ * Ink modes
+ * ---------------------------------------------------------------- */
+
+MC_TYPEINFO_DEFINE_EXEC_ENUM(InkNames)
+
 /* ----------------------------------------------------------------
  * Text styles
  * ---------------------------------------------------------------- */
