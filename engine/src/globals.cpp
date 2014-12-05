@@ -52,6 +52,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "parentscript.h"
 #include "osspec.h"
 #include "variable.h"
+#include "typeinfo.h"
 
 #include "printer.h"
 
@@ -954,6 +955,8 @@ bool X_open(int argc, MCStringRef argv[], MCStringRef envp[])
 		}
 #endif // _SERVER
 
+	/* UNCHECKED */ MCEngineTypeInfoInitialize ();
+
 	/* UNCHECKED */ MCObject::InitializeStatic ();
 	/* UNCHECKED */ MCStack::InitializeStatic ();
 	/* UNCHECKED */ MCCard::InitializeStatic ();
@@ -1191,6 +1194,8 @@ int X_close(void)
 	MCCard::FinalizeStatic ();
 	MCStack::FinalizeStatic ();
 	MCObject::FinalizeStatic ();
+
+	MCEngineTypeInfoFinalize ();
 
 	// MW-2012-02-14: [[ FontRefs ]] Close the dispatcher before deleting it.
 	MCdispatcher -> close();
