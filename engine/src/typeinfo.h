@@ -32,6 +32,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
  * Global typeinfo constants
  * ---------------------------------------------------------------- */
 
+extern MCTypeInfoRef kMCRectangleRecordTypeInfo;
 extern MCTypeInfoRef kMCTextStyleEnumTypeInfo;
 
 /* ----------------------------------------------------------------
@@ -70,6 +71,17 @@ bool MCTypeInfoMakeValueWithExecTypeInfo (MCTypeInfoRef p_typeinfo, MCExecEnumTy
  * ---------------------------------------------------------------- */
 
 MC_TYPEINFO_DEFINE_EXEC_ENUM(InkNames)
+
+/* ----------------------------------------------------------------
+ * Rectangles
+ * ---------------------------------------------------------------- */
+
+/* Convert the rectangle p_rect to an MCRecordRef instance of
+ * kMCRectangleRecordTypeInfo. */
+bool MCRectangleRecordFromStruct (MCRectangle & p_rect, MCRecordRef & r_record);
+/* Convert an MCRecordRef instance of kMCRectangleRecordTypeInfo to a
+ * rectangle r_rect. */
+bool MCRectangleRecordToStruct (MCRecordRef p_record, MCRectangle & r_rect);
 
 /* ----------------------------------------------------------------
  * Text styles

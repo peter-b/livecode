@@ -29,4 +29,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 /* Create the text style enumerated type */
 bool MCTextStyleEnumTypeInfoInitialize(void);
 
+/* Create the rectangle record type */
+bool MCRectangleRecordTypeInfoInitialize (void);
+
 #endif /* !_MC_TYPEINFO_PRIVATE_H_ */
