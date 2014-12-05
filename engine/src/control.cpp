@@ -38,6 +38,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "mctheme.h"
 #include "dispatch.h"
 #include "parentscript.h"
+#include "typeinfo.h"
 
 #include "globals.h"
 #include "context.h"
@@ -2039,6 +2040,13 @@ bool
 MCControl::GetStateTypeInfo (MCTypeInfoRef & r_type_info) const
 {
 	static const MCRecordTypeFieldInfo s_type_info_fields[] = {
+		{ MCNAME("dropShadow"), kMCOptionalBitmapEffectShadowRecordTypeInfo },
+		{ MCNAME("outerGlow"), kMCOptionalBitmapEffectGlowRecordTypeInfo },
+		{ MCNAME("innerShadow"), kMCOptionalBitmapEffectShadowRecordTypeInfo },
+		{ MCNAME("innerGlow"), kMCOptionalBitmapEffectGlowRecordTypeInfo },
+		{ MCNAME("colorOverlay"), kMCOptionalBitmapEffectOverlayRecordTypeInfo },
+		{ MCNAME("layerMode"), kMCLayerModeEnumTypeInfo },
+		{ MCNAME("toolTip"), kMCStringTypeInfo },
 		{ nil, kMCNullTypeInfo },
 	};
 	if (kStateRecordTypeInfo == NULL)
