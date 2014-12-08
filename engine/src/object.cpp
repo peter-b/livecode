@@ -5112,124 +5112,12 @@ MCObject::SetUuid (MCUuid p_uuid)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void
-MCObjectRefValueDestroy (MCValueRef p_value)
-{
-	/* The value doesn't own the underlying object. */
-}
-
-static bool
-MCObjectRefValueCopy (MCValueRef p_value, bool p_release, MCValueRef & r_value)
-{
-	if (!p_release) MCValueRetain (p_value);
-	r_value = p_value;
-	return true;
-}
-
-static bool
-MCObjectRefValueEqual (MCValueRef p_value, MCValueRef p_other_value)
-{
-	void *t_obj, *t_other_obj;
-	t_obj = MCValueGetExtraBytesPtr (p_value);
-	t_other_obj = MCValueGetExtraBytesPtr (p_other_value);
-	return t_obj == t_other_obj;
-}
-
-static hash_t
-MCObjectRefValueHash (MCValueRef p_value)
-{
-	return MCHashPointer (MCObject::FromValueRef (p_value));
-}
-
-static bool
-MCObjectRefValueDescribe (MCValueRef p_value, MCStringRef & r_desc)
-{
-	return false;
-}
-
-static MCValueCustomCallbacks kMCObjectValueCustomValueCallbacks =
-	{
-		true,
-		MCObjectRefValueDestroy,
-		MCObjectRefValueCopy,
-		MCObjectRefValueEqual,
-		MCObjectRefValueHash,
-		MCObjectRefValueDescribe,
-	};
-
-MCTypeInfoRef kMCObjectValueTypeInfo;
-MCTypeInfoRef kMCOptionalObjectValueTypeInfo;
-
-static bool
-MCObjectRefValueCreateTypeInfo (void)
-{
-	MCAutoTypeInfoRef t_base;
-	const char *k_type_name = "com.livecode.interface.object.reference";
-
-	if (!MCCustomTypeInfoCreate (&kMCObjectValueCustomValueCallbacks,
-	                             &t_base))
-		return false;
-	if (!(MCNamedTypeInfoCreate (MCNAME (k_type_name),
-	                             kMCObjectValueTypeInfo) &&
-	      MCNamedTypeInfoBind (kMCObjectValueTypeInfo,
-	                           *t_base)))
-		return false;
-	if (!MCOptionalTypeInfoCreate (kMCObjectValueTypeInfo,
-	                               kMCOptionalObjectValueTypeInfo))
-		return false;
-
-	return true;
-}
-
-bool
-MCObject::GetValueRef (MCValueRef & r_value)
-{
-	MCValueRef self = nil;
-	bool t_success = true;
-	if (!MCValueCreateCustom (kMCObjectValueTypeInfo, sizeof (MCObject *), self))
-		return false;
-
-	*((MCObject **) MCValueGetExtraBytesPtr (self)) = this;
-
-	if (MCValueInterAndRelease (self, r_value))
-	{
-		return true;
-	}
-	else
-	{
-		MCValueRelease (self);
-		return false;
-	}
-}
-
-MCObject *
-MCObject::FromValueRef (MCValueRef p_value)
-{
-	MCAssert (p_value);
-	MCAssert (MCValueGetTypeInfo (p_value) == kMCObjectValueTypeInfo);
-
-	MCObject *t_object = *((MCObject **) MCValueGetExtraBytesPtr (p_value));
-
-	/* Force a dereference of the pointer, forcing a crash here if an object's
-	 * valueref has outlasted the object itself. */
-	/* FIXME use a weak pointer */
-	MCAssert (t_object->_script != nil);
-
-	return t_object;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 MCTypeInfoRef MCObject::kStateRecordTypeInfo;
 
 bool
 MCObject::InitializeStatic (void)
 {
 	kStateRecordTypeInfo = nil;
-
-	if (!MCObjectRefValueCreateTypeInfo ())
-		return false;
-
 	return true;
 }
 
@@ -5238,11 +5126,6 @@ MCObject::FinalizeStatic (void)
 {
 	MCValueRelease (kStateRecordTypeInfo);
 	kStateRecordTypeInfo = nil;
-
-	MCValueRelease (kMCObjectValueTypeInfo);
-	kMCObjectValueTypeInfo = nil;
-	MCValueRelease (kMCOptionalObjectValueTypeInfo);
-	kMCOptionalObjectValueTypeInfo = nil;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

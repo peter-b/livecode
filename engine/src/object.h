@@ -1177,13 +1177,6 @@ public:
 	/* Finalise values of all class members.  Call only once at program
 	 * shutdown. */
 	static void FinalizeStatic (void);
-
-	////////// VALUEREF REPRESENTATION
-
-	/* Create a new MCValueRef containing a pointer to this MCObject. */
-	bool GetValueRef (MCValueRef & r_value);
-	/* Extract an MCObject pointer from an MCValueRef */
-	static MCObject *FromValueRef (MCValueRef p_value);
     
 //////////
 				
@@ -1335,19 +1328,4 @@ public:
 		return (MCObjectList *)MCDLlist::remove((MCDLlist *&)list);
 	}
 };
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//  OBJECT-SPECIFIC MCVALUE TYPES
-//
-
-/* Type info for object references. This is a custom value type that
- * wraps an MCObject pointer.  Values of this type are immutable; do
- * not permit mutable copies to be made; and must not be used after
- * the underlying object is destroyed. */
-extern MCTypeInfoRef kMCObjectValueTypeInfo;
-
-/* Optional object reference. */
-extern MCTypeInfoRef kMCOptionalObjectValueTypeInfo;
-
 #endif
