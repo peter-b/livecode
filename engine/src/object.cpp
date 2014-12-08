@@ -1602,6 +1602,27 @@ Boolean MCObject::setpatterns(MCStringRef data)
 	return True;
 }
 
+uinteger_t
+MCObject::getpatternid (Properties which,
+                        bool effective)
+{
+	uint16_t i;
+	if (getpindex (which - P_FORE_PATTERN, i))
+	{
+		if (patterns[i].id < PI_END && patterns[i].id > PI_PATTERNS)
+			return patterns[i].id - PI_PATTERNS;
+		else
+			return patterns[i].id;
+	}
+	else if (effective)
+	{
+		if (parent != NULL)
+			return parent->getpatternid (which, effective);
+		/* FIXME perhaps should refer to MCdispatcher default pattern */
+	}
+	return 0;
+}
+
 Boolean MCObject::getcindex(uint2 di, uint2 &i)
 {
 	i = 0;

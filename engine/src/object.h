@@ -614,6 +614,11 @@ public:
 	Boolean setcolors(const MCString &data);
 	Boolean setpattern(uint2 newpixmap, MCStringRef);
 	Boolean setpatterns(MCStringRef data);
+	/* Return the pattern id corresponding to the specified pattern
+	 * property.  If effective is true, returns the inherited pattern
+	 * id if none is directly specified for this project.  If no
+	 * pattern is set, returns 0. */
+	uinteger_t getpatternid(Properties which, bool effective = false);
 	Boolean getcindex(uint2 di, uint2 &i);
 	uint2 createcindex(uint2 di);
 	void destroycindex(uint2 di, uint2 i);
