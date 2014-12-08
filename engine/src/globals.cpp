@@ -964,6 +964,7 @@ bool X_open(int argc, MCStringRef argv[], MCStringRef envp[])
 	/* UNCHECKED */ MCPlayer::InitializeStatic ();
 	/* UNCHECKED */ MCGraphic::InitializeStatic ();
 	/* UNCHECKED */ MCEPS::InitializeStatic ();
+	/* UNCHECKED */ MCImage::InitializeStatic ();
 	/* UNCHECKED */ MCAudioClip::InitializeStatic ();
 	/* UNCHECKED */ MCVideoClip::InitializeStatic ();
 	/* UNCHECKED */ MCColors::InitializeStatic ();
@@ -1179,6 +1180,7 @@ int X_close(void)
 	MCColors::FinalizeStatic ();
 	MCVideoClip::FinalizeStatic ();
 	MCAudioClip::FinalizeStatic ();
+	MCImage::FinalizeStatic ();
 	MCEPS::FinalizeStatic ();
 	MCGraphic::FinalizeStatic ();
 	MCPlayer::FinalizeStatic ();
