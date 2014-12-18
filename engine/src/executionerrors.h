@@ -2612,14 +2612,22 @@ enum Exec_errors
     // MW-2014-10-23: Improve the error message you get from 'start using <name>'
     // {EE-0843} start: script of specified stack won't compile
     EE_START_WONTCOMPILE,
+    
+    // SN-2014-12-16: [[ Bug 14181 ]] hostnameToAddress should have no message on server
+    // {EE-0844} hostnameToAddress: callbacks are not allowed on server
+    EE_HOSTNAME_BADMESSAGE,
 
-	/* {EE-0844} stackdir: bad path */
+    // SN-2014-12-15: [[ Bug 14211 ]] Add an error when using a parsed bad extents (such as 'next')
+    // {EE-0845} Chunk: bad extents provided
+    EE_CHUNK_BADEXTENTS,
+
+	/* {EE-0846} stackdir: bad path */
 	EE_INTERNAL_STACKDIR_BADPATH,
 
-	/* {EE-0845} stackdir: bad state */
+	/* {EE-0847} stackdir: bad state */
 	EE_INTERNAL_STACKDIR_BADSTATE,
 
-	/* {EE-0846} stackarr: bad stack */
+	/* {EE-0848} stackarr: bad stack */
 	EE_INTERNAL_STACKARR_BADSTACK,
 };
 
