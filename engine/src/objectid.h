@@ -71,8 +71,8 @@ public:
 
 	/* Create a delayed object ID with the same identifying information as
 	 * in another object ID */
-	MCDelayedObjectId (const MCObjectId &);
-	MCDelayedObjectId (const MCDelayedObjectId &);
+	MCDelayedObjectId (const MCObjectId *);
+	MCDelayedObjectId (const MCDelayedObjectId *);
 
 	/* An object can only be uniquely identified by id or name if
 	 * these are resolved relative to a stack.  A context must be
@@ -117,7 +117,7 @@ public:
 	virtual bool HasContext (void) const { return (m_context != NULL); }
 	virtual const MCObjectId *GetContext (void) const {return m_context; }
 
-	~MCDelayedObjectId (void);
+	virtual ~MCDelayedObjectId (void);
 
 protected:
 	const MCObjectId *m_context;
