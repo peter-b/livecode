@@ -97,6 +97,7 @@ MCColor MCObject::maccolors[MAC_NCOLORS] = {
         };
 
 MCObject::MCObject()
+	: _id(*this)
 {
 	parent = NULL;
 	obj_id = 0;
@@ -156,7 +157,8 @@ MCObject::MCObject()
 	m_script_encrypted = false;
 }
 
-MCObject::MCObject(const MCObject &oref) : MCDLlist(oref)
+MCObject::MCObject(const MCObject &oref)
+	: MCDLlist(oref), _id(*this)
 {
 	if (oref.parent == NULL)
 		parent = MCdefaultstackptr;
@@ -5109,13 +5111,27 @@ MCObject::ImportSharedState (MCCard *p_card,
 ///////////////////////////////////////////////////////////////////////////////
 
 bool
+MCObject::HasUuid (const MCUuid & p_uuid) const
+{
+	if (!have_uuid) return false;
+	return (0 == MCUuidCompare (p_uuid, uuid));
+}
+
+bool
+MCObject::GetUuid (MCUuid & r_uuid) const
+{
+	if (!have_uuid) return false;
+	r_uuid = uuid;
+	return true;
+}
+
+bool
 MCObject::GetUuid (MCUuid & r_uuid)
 {
 	/* Only generate a UUID the first time that one is requested. */
 	if (!have_uuid)
 	{
-		if (!MCUuidGenerateRandom(uuid))
-			return false;
+		if (!MCUuidGenerateRandom (uuid)) return false;
 		have_uuid = true;
 	}
 
@@ -5124,8 +5140,12 @@ MCObject::GetUuid (MCUuid & r_uuid)
 }
 
 bool
-MCObject::SetUuid (MCUuid p_uuid)
+MCObject::SetUuid (const MCUuid & p_uuid)
 {
+	/* If the object is in the ID cache, uncache it since its ID is changing. */
+	if (getinidcache() && have_uuid)
+		getstack()->uncacheobjectbyid(this);
+
 	uuid = p_uuid;
 	have_uuid = true;
 	return true;
