@@ -35,6 +35,7 @@ MCEngineTypeInfoInitialize (void)
 {
 	return
 		MC_TYPEINFO_INITIALIZE_EXEC_ENUM(InkNames) &&
+		MCObjectIdCustomTypeInfoInitialize () &&
 		MCRectangleRecordTypeInfoInitialize () &&
 		MCTextStyleEnumTypeInfoInitialize ();
 }
@@ -43,6 +44,10 @@ void
 MCEngineTypeInfoFinalize (void)
 {
 	MC_TYPEINFO_FINALIZE_EXEC_ENUM(InkNames);
+	MCValueRelease (kMCObjectIdCustomTypeInfo);
+	kMCObjectIdCustomTypeInfo = nil;
+	MCValueRelease (kMCOptionalObjectIdCustomTypeInfo);
+	kMCOptionalObjectIdCustomTypeInfo = nil;
 	MCValueRelease (kMCRectangleRecordTypeInfo);
 	kMCRectangleRecordTypeInfo = nil;
 	MCValueRelease (kMCTextStyleEnumTypeInfo);

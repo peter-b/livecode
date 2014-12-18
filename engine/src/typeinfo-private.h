@@ -32,4 +32,7 @@ bool MCTextStyleEnumTypeInfoInitialize(void);
 /* Create the rectangle record type */
 bool MCRectangleRecordTypeInfoInitialize (void);
 
+/* Create the object ID custom type */
+bool MCObjectIdCustomTypeInfoInitialize (void);
+
 #endif /* !_MC_TYPEINFO_PRIVATE_H_ */

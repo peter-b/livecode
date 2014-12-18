@@ -34,6 +34,8 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 extern MCTypeInfoRef kMCRectangleRecordTypeInfo;
 extern MCTypeInfoRef kMCTextStyleEnumTypeInfo;
+extern MCTypeInfoRef kMCObjectIdCustomTypeInfo;
+extern MCTypeInfoRef kMCOptionalObjectIdCustomTypeInfo;
 
 /* ----------------------------------------------------------------
  * Compatibility with exec interface types
@@ -93,6 +95,20 @@ bool MCTextStyleEnumSetFromFlags (uint2 p_style_set, MCProperSetRef & r_set);
 /* Convert an MCProperSetRef p_set containing MCEnumRef instances of
  * kMCTextStyleEnumTypeInfo to a text style bitset r_style_set */
 bool MCTextStyleEnumSetToFlags (MCProperSetRef p_set, uint2 & r_style_set);
+
+/* ----------------------------------------------------------------
+ * Object IDs
+ * ---------------------------------------------------------------- */
+
+/* Create a custom MCValueRef that contains object identification
+ * information.  N.b. the p_id argument is copied; it isn't stored in
+ * the r_value. */
+bool MCObjectIdValueFromInstance (const MCObjectId *p_id, MCValueRef & r_value);
+/* Get object identification information from a custom MCValueRef.
+ * N.b. the returned value belongs to p_value and will be destroyed
+ * with p_value, so make sure to hold a reference to p_value until
+ * you've finished with the object ID. */
+const MCObjectId *MCObjectIdValueToInstance (MCValueRef p_value);
 
 /* ----------------------------------------------------------------
  * Initialization and finalization

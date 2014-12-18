@@ -45,7 +45,7 @@ SOURCES=\
 	stacksecurity.cpp \
 	statemnt.cpp styledtext.cpp tooltip.cpp \
 	transfer.cpp uidc.cpp gradient.cpp edittool.cpp \
-	typeinfo.cpp typeinfo-enum.cpp typeinfo-record.cpp \
+	typeinfo.cpp typeinfo-enum.cpp typeinfo-record.cpp typeinfo-custom.cpp \
 	undolst.cpp util.cpp variable.cpp vclip.cpp visual.cpp \
 	eps.cpp mcssl.cpp opensslsocket.cpp socket_resolve.cpp \
 	answer.cpp ask.cpp external.cpp player.cpp surface.cpp \
