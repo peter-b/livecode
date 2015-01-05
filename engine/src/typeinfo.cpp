@@ -36,6 +36,7 @@ MCEngineTypeInfoInitialize (void)
 	return
 		MC_TYPEINFO_INITIALIZE_EXEC_ENUM(LayerMode) &&
 		MC_TYPEINFO_INITIALIZE_EXEC_ENUM(PlayDestination) &&
+		MC_TYPEINFO_INITIALIZE_EXEC_ENUM(StackStyle) &&
 		MC_TYPEINFO_INITIALIZE_EXEC_ENUM(StackFullscreenMode) &&
 		MC_TYPEINFO_INITIALIZE_EXEC_ENUM(InkNames) &&
 		MCObjectIdCustomTypeInfoInitialize () &&
@@ -51,6 +52,7 @@ MCEngineTypeInfoFinalize (void)
 {
 	MC_TYPEINFO_FINALIZE_EXEC_ENUM(LayerMode);
 	MC_TYPEINFO_FINALIZE_EXEC_ENUM(PlayDestination);
+	MC_TYPEINFO_FINALIZE_EXEC_ENUM(StackStyle);
 	MC_TYPEINFO_FINALIZE_EXEC_ENUM(StackFullscreenMode);
 	MC_TYPEINFO_FINALIZE_EXEC_ENUM(InkNames);
 	MCValueRelease (kMCObjectIdCustomTypeInfo);

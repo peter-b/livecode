@@ -328,6 +328,7 @@ MCBitmapEffectEnumTypeInfoInitialize (void)
 
 MCTypeInfoRef kMCLayerModeEnumTypeInfo;
 MCTypeInfoRef kMCPlayDestinationEnumTypeInfo;
+MCTypeInfoRef kMCStackStyleEnumTypeInfo;
 MCTypeInfoRef kMCStackFullscreenModeEnumTypeInfo;
 MCTypeInfoRef kMCInkNamesEnumTypeInfo;
 MCTypeInfoRef kMCAudioClipFormatEnumTypeInfo;
