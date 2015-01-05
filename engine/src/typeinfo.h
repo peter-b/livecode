@@ -105,6 +105,12 @@ bool MCAudioClipFormatEnumFromBits (enum Audio_format p_bits, MCEnumRef & r_enum
 bool MCAudioClipFormatEnumToBits (MCEnumRef p_enum, enum Audio_format & r_bits);
 
 /* ----------------------------------------------------------------
+ * Stack fullscreen modes
+ * ---------------------------------------------------------------- */
+
+MC_TYPEINFO_DEFINE_EXEC_ENUM(StackFullscreenMode)
+
+/* ----------------------------------------------------------------
  * Rectangles
  * ---------------------------------------------------------------- */
 
