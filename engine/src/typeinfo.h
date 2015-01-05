@@ -1,5 +1,5 @@
 /*                                                                   -*- c++ -*-
-Copyright (C) 2003-2014 Runtime Revolution Ltd.
+Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -73,6 +73,12 @@ bool MCTypeInfoMakeValueWithExecTypeInfo (MCTypeInfoRef p_typeinfo, MCExecEnumTy
  * ---------------------------------------------------------------- */
 
 MC_TYPEINFO_DEFINE_EXEC_ENUM(InkNames)
+
+/* ----------------------------------------------------------------
+ * Audioclip play destination
+ * ---------------------------------------------------------------- */
+
+MC_TYPEINFO_DEFINE_EXEC_ENUM(PlayDestination)
 
 /* ----------------------------------------------------------------
  * Rectangles

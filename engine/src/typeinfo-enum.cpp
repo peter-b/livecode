@@ -182,6 +182,7 @@ MCTextStyleEnumSetToFlags (MCProperSetRef p_set,
  * [Public] Typeinfo constants
  * ================================================================ */
 
+MCTypeInfoRef kMCPlayDestinationEnumTypeInfo;
 MCTypeInfoRef kMCInkNamesEnumTypeInfo;
 MCTypeInfoRef kMCTextStyleEnumTypeInfo;
 
