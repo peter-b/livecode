@@ -67,6 +67,21 @@ static bool MCTextStyleEnumToFlags (MCEnumRef p_enum, Font_textstyle & r_style);
  * enumerated type to set. */
 static bool MCTextStyleEnumAddToSet (MCProperSetRef set, uint2 p_styles, Font_textstyle p_style);
 
+/* ---------- Stack decorations */
+
+/* Convert a stack decoration flag to a corresponding interned name */
+static bool MCDecorationNameFromFlags (uint16_t p_decoration, MCNameRef & r_name);
+/* Convert a stack decoration flag to a member of the stack decoration
+ * enumerated type. */
+static bool MCDecorationEnumFromFlags (uint16_t p_decoration, MCEnumRef & r_enum);
+/* Convert a member of the stack decoration enumerated type to a stack
+ * decoration flag. */
+static bool MCDecorationEnumToFlags (MCEnumRef p_enum, uint16_t & r_decoration);
+/* If the stack decoration p_decoration is enabled in the stack
+ * decoration bitset p_decoration_set, then add the corresponding
+ * member of the stack decoration enumerated type to set. */
+static bool MCDecorationEnumAddToSet (MCProperSetRef set, uint16_t p_decoration_set, uint16_t p_decoration);
+
 /* ================================================================
  * Text style enumeration
  * ================================================================ */
@@ -323,6 +338,178 @@ MCBitmapEffectEnumTypeInfoInitialize (void)
 }
 
 /* ================================================================
+ * Stack decoration enumeration
+ * ================================================================ */
+
+/* ----------------------------------------------------------------
+ * [Private] Utility functions
+ * ---------------------------------------------------------------- */
+
+static bool
+MCDecorationNameFromFlags (uint16_t p_decoration,
+                           MCNameRef & r_name)
+{
+	const char *t_cstring;
+
+	switch (p_decoration)
+	{
+	case WD_TITLE:    t_cstring = MCtitlestring;    break;
+	case WD_MENU:     t_cstring = MCmenustring;     break;
+	case WD_MINIMIZE: t_cstring = MCminimizestring; break;
+	case WD_MAXIMIZE: t_cstring = MCmaximizestring; break;
+	case WD_CLOSE:    t_cstring = MCclosestring;    break;
+	case WD_METAL:    t_cstring = MCmetalstring;    break;
+	case WD_UTILITY:  t_cstring = MCutilitystring;  break;
+	case WD_NOSHADOW: t_cstring = MCnoshadowstring; break;
+
+	default:
+		MCUnreachable();
+	};
+
+	MCNewAutoNameRef t_name;
+	if (!MCNameCreateWithCString (t_cstring, &t_name))
+		return false;
+
+	r_name = MCValueRetain (*t_name);
+	return true;
+}
+
+static bool
+MCDecorationEnumFromFlags (uint16_t p_decoration,
+                           MCEnumRef & r_enum)
+{
+	MCNewAutoNameRef t_name;
+	if (!MCDecorationNameFromFlags (p_decoration, &t_name))
+		return false;
+	return MCEnumCreate (kMCDecorationEnumTypeInfo, *t_name, r_enum);
+}
+
+static bool
+MCDecorationEnumToFlags (MCEnumRef p_enum,
+                         uint16_t & r_decoration)
+{
+	MCAssert (MCTypeInfoConforms (MCValueGetTypeInfo (p_enum),
+	                              kMCDecorationEnumTypeInfo));
+
+	MCValueRef t_name = MCEnumGetValue (p_enum);
+	MCStringRef t_string = MCNameGetString ((MCNameRef) t_name);
+
+	if (MCStringIsEqualTo (t_string, MCSTR(MCtitlestring), kMCCompareCaseless))
+		r_decoration = WD_TITLE;
+	else if (MCStringIsEqualTo (t_string, MCSTR(MCmenustring), kMCCompareCaseless))
+		r_decoration = WD_MENU;
+	else if (MCStringIsEqualTo (t_string, MCSTR(MCminimizestring), kMCCompareCaseless))
+		r_decoration = WD_MINIMIZE;
+	else if (MCStringIsEqualTo (t_string, MCSTR(MCmaximizestring), kMCCompareCaseless))
+		r_decoration = WD_MAXIMIZE;
+	else if (MCStringIsEqualTo (t_string, MCSTR(MCclosestring), kMCCompareCaseless))
+		r_decoration = WD_CLOSE;
+	else if (MCStringIsEqualTo (t_string, MCSTR(MCmetalstring), kMCCompareCaseless))
+		r_decoration = WD_METAL;
+	else if (MCStringIsEqualTo (t_string, MCSTR(MCutilitystring), kMCCompareCaseless))
+		r_decoration = WD_UTILITY;
+	else if (MCStringIsEqualTo (t_string, MCSTR(MCnoshadowstring), kMCCompareCaseless))
+		r_decoration = WD_NOSHADOW;
+	else
+		return false;
+
+	return true;
+}
+
+static bool
+MCDecorationEnumAddToSet (MCProperSetRef set,
+                          uint16_t p_decoration_set,
+                          uint16_t p_decoration)
+{
+	if (0 == (p_decoration & p_decoration_set)) return true;
+
+	MCAutoEnumRef t_enum;
+	return
+		MCDecorationEnumFromFlags (p_decoration, &t_enum) &&
+		MCProperSetAddElement (set, *t_enum);
+}
+
+/* ----------------------------------------------------------------
+ * [Private] Initialization
+ * ---------------------------------------------------------------- */
+
+bool
+MCDecorationEnumTypeInfoInitialize (void)
+{
+	const char *k_type_name = "com.livecode.interface.stack.decoration";
+
+	MCNameRef t_enum_values[9];
+	t_enum_values[8] = NULL; /* Custodian */
+	if (!(MCNameCreateWithCString (MCtitlestring, t_enum_values[0]) &&
+	      MCNameCreateWithCString (MCmenustring, t_enum_values[1]) &&
+	      MCNameCreateWithCString (MCminimizestring, t_enum_values[2]) &&
+	      MCNameCreateWithCString (MCmaximizestring, t_enum_values[3]) &&
+	      MCNameCreateWithCString (MCclosestring, t_enum_values[4]) &&
+	      MCNameCreateWithCString (MCmetalstring, t_enum_values[5]) &&
+	      MCNameCreateWithCString (MCutilitystring, t_enum_values[6]) &&
+	      MCNameCreateWithCString (MCnoshadowstring, t_enum_values[7])))
+		return false;
+
+	MCAutoTypeInfoRef t_raw_typeinfo;
+	if (!MCEnumTypeInfoCreate ((MCValueRef *) t_enum_values, -1, &t_raw_typeinfo))
+		return false;
+
+	MCAutoTypeInfoRef t_typeinfo;
+	if (!(MCNamedTypeInfoCreate (MCNAME (k_type_name), &t_typeinfo) &&
+	      MCNamedTypeInfoBind (*t_typeinfo, *t_raw_typeinfo)))
+		return false;
+
+	kMCDecorationEnumTypeInfo = MCValueRetain (*t_typeinfo);
+	return true;
+}
+
+/* ----------------------------------------------------------------
+ * [Public] Conversion to/from decoration flag fields
+ * ---------------------------------------------------------------- */
+
+bool
+MCDecorationEnumSetFromFlags (uint16_t p_decoration_set,
+                              MCProperSetRef & r_set)
+{
+	MCAutoProperSetRef t_set;
+	if (!MCProperSetCreateMutable (&t_set))
+		return false;
+
+	return
+		MCDecorationEnumAddToSet (*t_set, p_decoration_set, WD_TITLE) &&
+		MCDecorationEnumAddToSet (*t_set, p_decoration_set, WD_MENU) &&
+		MCDecorationEnumAddToSet (*t_set, p_decoration_set, WD_MINIMIZE) &&
+		MCDecorationEnumAddToSet (*t_set, p_decoration_set, WD_MAXIMIZE) &&
+		MCDecorationEnumAddToSet (*t_set, p_decoration_set, WD_CLOSE) &&
+		MCDecorationEnumAddToSet (*t_set, p_decoration_set, WD_METAL) &&
+		MCDecorationEnumAddToSet (*t_set, p_decoration_set, WD_UTILITY) &&
+		MCDecorationEnumAddToSet (*t_set, p_decoration_set, WD_NOSHADOW) &&
+		MCProperSetCopy (*t_set, r_set);
+}
+
+bool
+MCDecorationEnumSetToFlags (MCProperSetRef p_set,
+                            uint16_t & r_decoration_set)
+{
+	uint16_t t_decoration_set = 0;
+	uintptr_t t_iterator = 0;
+	MCValueRef t_element;
+	while (MCProperSetIterate (p_set, t_iterator, t_element))
+	{
+		uint16_t t_decoration;
+		bool t_success;
+		t_success = MCDecorationEnumToFlags ((MCEnumRef) t_element,
+		                                     t_decoration);
+		MCAssert (t_success);
+
+		t_decoration_set |= t_decoration;
+	}
+
+	r_decoration_set = t_decoration_set;
+	return false;
+}
+
+/* ================================================================
  * [Public] Typeinfo constants
  * ================================================================ */
 
@@ -333,6 +520,7 @@ MCTypeInfoRef kMCStackFullscreenModeEnumTypeInfo;
 MCTypeInfoRef kMCInkNamesEnumTypeInfo;
 MCTypeInfoRef kMCAudioClipFormatEnumTypeInfo;
 MCTypeInfoRef kMCTextStyleEnumTypeInfo;
+MCTypeInfoRef kMCDecorationEnumTypeInfo;
 
 MCTypeInfoRef kMCBitmapEffectBlendModeEnumTypeInfo;
 MCTypeInfoRef kMCBitmapEffectFilterEnumTypeInfo;

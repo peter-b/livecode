@@ -32,6 +32,9 @@ bool MCAudioClipFormatTypeInfoInitialize(void);
 /* Create the text style enumerated type */
 bool MCTextStyleEnumTypeInfoInitialize(void);
 
+/* Create the stack decoration enumerated type */
+bool MCDecorationEnumTypeInfoInitialize(void);
+
 /* Create the rectangle record type */
 bool MCRectangleRecordTypeInfoInitialize (void);
 

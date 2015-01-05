@@ -38,6 +38,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 extern MCTypeInfoRef kMCRectangleRecordTypeInfo;
 extern MCTypeInfoRef kMCTextStyleEnumTypeInfo;
 extern MCTypeInfoRef kMCAudioClipFormatEnumTypeInfo;
+extern MCTypeInfoRef kMCDecorationEnumTypeInfo;
 extern MCTypeInfoRef kMCObjectIdCustomTypeInfo;
 extern MCTypeInfoRef kMCOptionalObjectIdCustomTypeInfo;
 
@@ -137,6 +138,19 @@ bool MCTextStyleEnumSetFromFlags (uint2 p_style_set, MCProperSetRef & r_set);
 /* Convert an MCProperSetRef p_set containing MCEnumRef instances of
  * kMCTextStyleEnumTypeInfo to a text style bitset r_style_set */
 bool MCTextStyleEnumSetToFlags (MCProperSetRef p_set, uint2 & r_style_set);
+
+/* ----------------------------------------------------------------
+ * Stack decorations
+ * ---------------------------------------------------------------- */
+
+/* Convert the stack decoration bitset p_decoration_set to a
+ * MCProperSetRef r_set containing MCEnumRef instances of
+ * kMCDecorationEnumTypeInfo */
+bool MCDecorationEnumSetFromFlags (uint16_t p_decoration_set, MCProperSetRef & r_set);
+/* Convert an MCProperSetRef p_set containing MCEnumRef instances of
+ * kMCDecorationEnumTypeInfo to a stack decoration bitset
+ * r_decoration_set */
+bool MCDecorationEnumSetToFlags (MCProperSetRef p_set, uint16_t & r_decoration_set);
 
 /* ----------------------------------------------------------------
  * Object IDs
