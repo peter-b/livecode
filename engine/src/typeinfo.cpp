@@ -38,6 +38,7 @@ MCEngineTypeInfoInitialize (void)
 		MC_TYPEINFO_INITIALIZE_EXEC_ENUM(InkNames) &&
 		MCObjectIdCustomTypeInfoInitialize () &&
 		MCRectangleRecordTypeInfoInitialize () &&
+		MCAudioClipFormatTypeInfoInitialize () &&
 		MCTextStyleEnumTypeInfoInitialize ();
 }
 
@@ -52,6 +53,8 @@ MCEngineTypeInfoFinalize (void)
 	kMCOptionalObjectIdCustomTypeInfo = nil;
 	MCValueRelease (kMCRectangleRecordTypeInfo);
 	kMCRectangleRecordTypeInfo = nil;
+	MCValueRelease (kMCAudioClipFormatEnumTypeInfo);
+	kMCAudioClipFormatEnumTypeInfo = nil;
 	MCValueRelease (kMCTextStyleEnumTypeInfo);
 	kMCTextStyleEnumTypeInfo = nil;
 }

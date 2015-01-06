@@ -1,5 +1,5 @@
 /*                                                                   -*- c++ -*-
-Copyright (C) 2003-2014 Runtime Revolution Ltd.
+Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -25,6 +25,9 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 /* ----------------------------------------------------------------
  * Initialization and finalization
  * ---------------------------------------------------------------- */
+
+/* Create the audioclip format enumerated type */
+bool MCAudioClipFormatTypeInfoInitialize(void);
 
 /* Create the text style enumerated type */
 bool MCTextStyleEnumTypeInfoInitialize(void);

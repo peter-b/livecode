@@ -208,11 +208,68 @@ MCTextStyleEnumSetToFlags (MCProperSetRef p_set,
 }
 
 /* ================================================================
+ * Audio clip format enumeration
+ * ================================================================ */
+
+static const MCNativeEnumValueInfo kMCAudioClipFormatEnumValues[] = {
+	{ AF_SLINEAR, "slinear" },
+	{ AF_MULAW, "mulaw" },
+	{ AF_ULINEAR, "ulinear" },
+	{ 0, NULL },
+};
+
+/* ----------------------------------------------------------------
+ * [Private] Initialization
+ * ---------------------------------------------------------------- */
+
+bool
+MCAudioClipFormatTypeInfoInitialize (void)
+{
+	const char *k_type_name = "com.livecode.interface.audioclip.format";
+
+	return MCNativeEnumTypeInfoCreateWithName (kMCAudioClipFormatEnumValues,
+	                                           -1,
+	                                           MCNAME (k_type_name),
+	                                           kMCAudioClipFormatEnumTypeInfo);
+}
+
+/* ----------------------------------------------------------------
+ * [Public] Conversion to/from C enum
+ * ---------------------------------------------------------------- */
+
+bool
+MCAudioClipFormatEnumFromBits (enum Audio_format p_bits,
+                               MCEnumRef & r_enum)
+{
+	return MCTypeInfoNativeEnumFromBits (kMCAudioClipFormatEnumTypeInfo,
+	                                     kMCAudioClipFormatEnumValues,
+	                                     -1,
+	                                     p_bits, r_enum);
+}
+
+bool
+MCAudioClipFormatEnumToBits (MCEnumRef p_enum,
+                             enum Audio_format & r_bits)
+{
+	intenum_t t_bits;
+	if (!MCTypeInfoNativeEnumToBits (kMCAudioClipFormatEnumTypeInfo,
+	                                 kMCAudioClipFormatEnumValues,
+	                                 -1,
+	                                 p_enum, t_bits))
+		return false;
+
+	r_bits = (enum Audio_format) t_bits;
+	return true;
+}
+
+
+/* ================================================================
  * [Public] Typeinfo constants
  * ================================================================ */
 
 MCTypeInfoRef kMCPlayDestinationEnumTypeInfo;
 MCTypeInfoRef kMCInkNamesEnumTypeInfo;
+MCTypeInfoRef kMCAudioClipFormatEnumTypeInfo;
 MCTypeInfoRef kMCTextStyleEnumTypeInfo;
 
 /* ================================================================

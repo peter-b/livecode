@@ -22,6 +22,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 #include "parsedef.h"
 #include "sysdefs.h"
+#include "aclip.h"
 
 #include "exec.h"
 
@@ -34,6 +35,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 extern MCTypeInfoRef kMCRectangleRecordTypeInfo;
 extern MCTypeInfoRef kMCTextStyleEnumTypeInfo;
+extern MCTypeInfoRef kMCAudioClipFormatEnumTypeInfo;
 extern MCTypeInfoRef kMCObjectIdCustomTypeInfo;
 extern MCTypeInfoRef kMCOptionalObjectIdCustomTypeInfo;
 
@@ -79,6 +81,15 @@ MC_TYPEINFO_DEFINE_EXEC_ENUM(InkNames)
  * ---------------------------------------------------------------- */
 
 MC_TYPEINFO_DEFINE_EXEC_ENUM(PlayDestination)
+
+/* ----------------------------------------------------------------
+ * Audio clip format
+ * ---------------------------------------------------------------- */
+
+/* Convert an audio format to an enumerated value */
+bool MCAudioClipFormatEnumFromBits (enum Audio_format p_bits, MCEnumRef & r_enum);
+/* Convert an enumerated value to an audio format */
+bool MCAudioClipFormatEnumToBits (MCEnumRef p_enum, enum Audio_format & r_bits);
 
 /* ----------------------------------------------------------------
  * Rectangles
