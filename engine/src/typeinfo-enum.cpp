@@ -23,6 +23,35 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
  * [Private] File-local declarations
  * ================================================================ */
 
+/* ---------- Native enum support */
+
+typedef struct _MCNativeEnumValueInfo MCNativeEnumValueInfo;
+
+struct _MCNativeEnumValueInfo {
+	intenum_t m_bits;
+	const char *m_cname;
+};
+
+/* Create a new native typeinfo mapping names to C enum constants */
+bool MCNativeEnumTypeInfoCreateWithName (const MCNativeEnumValueInfo *p_values, index_t p_value_count, MCNameRef p_name, MCTypeInfoRef & r_typeinfo);
+/* Convert a C enum constant to a MCEnumRef value of the corresponding
+ * p_typeinfo */
+bool MCTypeInfoNativeEnumToBits (MCTypeInfoRef p_typeinfo, const MCNativeEnumValueInfo *p_values, index_t p_value_count, MCEnumRef p_enum, intenum_t & r_bits);
+/* Convert an MCEnumRef value to a corresponding C enum constant */
+bool MCTypeInfoNativeEnumFromBits (MCTypeInfoRef p_typeinfo, const MCNativeEnumValueInfo *p_values, index_t p_value_count, intenum_t p_bits, MCEnumRef & r_enum);
+
+/* ---------- Sets of enumerated values */
+
+typedef bool (*MCTypeInfoEnumFromBitsFunc)(intenum_t, MCEnumRef &);
+typedef bool (*MCTypeInfoEnumToBitsFunc)(MCEnumRef, intenum_t &);
+
+/* Use the conversion function p_func to convert the flag word p_flags
+ * into an MCProperSet of MCEnumRef values. */
+bool MCTypeInfoEnumSetFromFlags (intenum_t p_flags, MCTypeInfoEnumFromBitsFunc p_func, MCProperSetRef & r_set);
+/* Use the conversion function p_func to convert p_set, a MCProperSet
+ * of MCEnumRef values, into a flag word r_flags. */
+bool MCTypeInfoEnumSetToFlags (MCProperSetRef p_set, MCTypeInfoEnumToBitsFunc p_func, intenum_t & r_flags);
+
 /* ---------- Text styles */
 
 /* Convert a text style to a corresponding interned name */
@@ -277,4 +306,148 @@ MCTypeInfoMakeValueWithExecTypeInfo (MCTypeInfoRef p_typeinfo,
 	}
 
 	MCUnreachable (); /* No match found iff programming error */
+}
+
+/* ================================================================
+ * [Private] Compatibility with native enum types.
+ * ================================================================ */
+
+bool
+MCTypeInfoNativeEnumFromBits (MCTypeInfoRef p_typeinfo,
+                              const MCNativeEnumValueInfo *p_values,
+                              index_t p_value_count,
+                              intenum_t p_bits,
+                              MCEnumRef & r_enum)
+{
+	/* Search for a matching member of the native enum */
+	for (index_t i = 0;
+	     (p_value_count < 0) ? (NULL != p_values[i].m_cname) : (i < p_value_count);
+	     ++i)
+	{
+		if (p_bits != p_values[i].m_bits) continue;
+
+		MCNewAutoNameRef t_name;
+		return
+			MCNameCreateWithCString (p_values[i].m_cname, &t_name) &&
+			MCEnumCreate (p_typeinfo, *t_name, r_enum);
+	}
+
+	MCUnreachable(); /* No match found iff programming error */
+}
+
+bool
+MCTypeInfoNativeEnumToBits (MCTypeInfoRef p_typeinfo,
+                            const MCNativeEnumValueInfo *p_values,
+                            index_t p_value_count,
+                            MCEnumRef p_enum,
+                            intenum_t & r_bits)
+{
+	MCAssert (MCTypeInfoConforms (MCValueGetTypeInfo (p_enum), p_typeinfo));
+
+	MCNameRef t_name = (MCNameRef) (MCEnumGetValue (p_enum));
+
+	/* Search for a matching member of the native enum */
+	for (index_t i = 0;
+	     (p_value_count < 0) ? (NULL != p_values[i].m_cname) : (i < p_value_count);
+	     ++i)
+	{
+		if (!MCNameIsEqualTo (t_name, MCNAME(p_values[i].m_cname)))
+			continue;
+
+		r_bits = p_values[i].m_bits;
+		return true;
+	}
+
+	MCUnreachable (); /* No match found iff programming error */
+}
+
+bool
+MCNativeEnumTypeInfoCreateWithName (const MCNativeEnumValueInfo *p_values,
+                                    index_t p_value_count,
+                                    MCNameRef p_name,
+                                    MCTypeInfoRef & r_typeinfo)
+{
+	bool t_success = true;
+
+	MCAssert (p_values);
+	MCAssert (p_name);
+
+	/* If no count of values was provided, count by looking for custodian. */
+	if (p_value_count < 0)
+		for (p_value_count = 0;
+		     p_values[p_value_count].m_cname;
+		     ++p_value_count);
+
+	/* Create array of element names */
+	MCNameRef *t_enum_values;
+	if (!MCMemoryNewArray (p_value_count, t_enum_values))
+		return false;
+
+	for (index_t i = 0; t_success && i < p_value_count; ++i)
+		t_success = MCNameCreateWithCString (p_values[i].m_cname,
+		                                     t_enum_values[i]);
+
+	/* Create raw enum typeinfo */
+	if (t_success)
+		t_success = MCEnumTypeInfoCreateWithName ((MCValueRef *) t_enum_values,
+		                                          p_value_count,
+		                                          p_name,
+		                                          r_typeinfo);
+
+	/* Unconditionally clean up array of element names */
+	for (index_t i = 0; i < p_value_count; ++i)
+		MCValueRelease (t_enum_values[i]);
+	MCMemoryDeleteArray (t_enum_values);
+
+	return t_success;
+}
+
+/* ================================================================
+ * [Private] Sets of enumerated values
+ * ================================================================ */
+
+bool
+MCTypeInfoEnumSetFromFlags (intenum_t p_flags,
+                            MCTypeInfoEnumFromBitsFunc p_func,
+                            MCProperSetRef & r_set)
+{
+	MCAutoProperSetRef t_set;
+	if (!MCProperSetCreateMutable (&t_set))
+		return false;
+
+	for (uindex_t i = 0; i < 8*sizeof(p_flags); ++i)
+	{
+		/* Check if each bit is set */
+		intenum_t t_bit = 1 << i;
+		if (0 == (p_flags & t_bit)) continue;
+
+		/* If set, include the corresponding enum member in the result */
+		MCAutoEnumRef t_enum;
+		if (!(p_func (t_bit, &t_enum) &&
+		      MCProperSetAddElement (*t_set, *t_enum)))
+			return false;
+	}
+
+	return MCProperSetCopy (*t_set, r_set);
+}
+
+bool
+MCTypeInfoEnumSetToFlags (MCProperSetRef p_set,
+                          MCTypeInfoEnumToBitsFunc p_func,
+                          intenum_t & r_flags)
+{
+	intenum_t t_flags = 0;
+	uintptr_t t_iterator = 0;
+	MCValueRef t_element;
+	while (MCProperSetIterate (p_set, t_iterator, t_element))
+	{
+		intenum_t t_bit = 0;
+		if (!p_func ((MCEnumRef) t_element, t_bit))
+			return false;
+
+		t_flags |= t_bit;
+	}
+
+	r_flags = t_flags;
+	return true;
 }
