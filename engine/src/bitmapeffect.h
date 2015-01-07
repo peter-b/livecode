@@ -39,6 +39,9 @@ bool MCBitmapEffectsGetProperties(MCBitmapEffectsRef& self, Properties which_typ
 bool MCBitmapEffectsGetProperty(MCExecContext& ctxt, MCBitmapEffectsRef& self, MCNameRef p_index, Properties which, MCExecValue& r_color);
 bool MCBitmapEffectsSetProperty(MCExecContext& ctxt, MCBitmapEffectsRef& self, MCNameRef p_index, Properties which, MCExecValue p_color, bool& r_dirty);
 
+bool MCBitmapEffectsGetArray(MCBitmapEffectsRef & self, Properties which, MCArrayRef & r_array);
+bool MCBitmapEffectsSetArray(MCBitmapEffectsRef & self, Properties which, MCArrayRef p_array);
+
 uint32_t MCBitmapEffectsWeigh(MCBitmapEffectsRef self);
 IO_stat MCBitmapEffectsPickle(MCBitmapEffectsRef self, MCObjectOutputStream& p_stream);
 IO_stat MCBitmapEffectsUnpickle(MCBitmapEffectsRef& self, MCObjectInputStream& p_stream);

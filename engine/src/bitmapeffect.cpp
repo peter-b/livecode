@@ -674,7 +674,7 @@ bool MCBitmapEffectsGetProperty(MCExecContext& ctxt, MCBitmapEffectsRef& self, M
 {
     // First map the property type
 	MCBitmapEffectType t_type;
-	t_type = (MCBitmapEffectType)(which - P_BITMAP_EFFECT_DROP_SHADOW);
+	t_type = MCBitmapEffectsMapPropertyToType (which);
     
     // If 'p_index' is the empty name, this is a whole array op.
     bool t_is_array;
@@ -731,6 +731,53 @@ bool MCBitmapEffectsGetProperty(MCExecContext& ctxt, MCBitmapEffectsRef& self, M
     }
 
     return false;
+}
+
+static bool
+MCBitmapEffectsGetArray (MCBitmapEffectsRef & self,
+                         Properties p_which,
+                         MCArrayRef & r_array)
+{
+	MCAssert (self);
+
+	/* Map the property type */
+	MCBitmapEffectType t_type;
+	t_type = MCBitmapEffectsMapPropertyToType (which);
+
+	/* If the requested bitmap effect isn't set, then return a null
+	 * value, successfully. */
+	if (0 == (self->mask & (1 << t_type)))
+	{
+		r_array = MCValueRetain (kMCNull);
+		return true;
+	}
+
+	MCAutoArrayRef v;
+	if (!MCArrayCreateMutable(&v)) return false;
+
+	/* Now loop through all the properties, getting the ones applicable to
+	 * this type. */
+	for(uint32_t i = 0; i < ELEMENTS(s_bitmap_effect_properties); i++)
+	{
+		if ((s_bitmap_effect_properties[i] . mask & (1 << t_type)) != 0)
+		{
+			MCExecValue t_value;
+			MCAutoValueRef t_valueref;
+
+			/* Fetch the property, then store it into the array. */
+			MCBitmapEffectFetchProperty(ctxt, t_effect,
+			                            s_bitmap_effect_properties[i].value,
+			                            t_value);
+			MCExecTypeConvertAndReleaseAlways(ctxt, t_value.type,
+			                                  &t_value,
+			                                  kMCExecValueTypeValueRef,
+			                                  &(&t_valueref));
+			MCArrayStoreValue(*v, ctxt . GetCaseSensitive(), MCNAME(s_bitmap_effect_properties[i] . token), *t_valueref);
+		}
+	}
+
+	r_array = MCValueRetain (*v);
+	return true;
 }
 
 static void MCBitmapEffectsSetColorProperty(MCBitmapEffect& x_effect, MCBitmapEffectProperty p_prop, MCColor p_color, bool& x_dirty)
@@ -953,11 +1000,17 @@ static void MCBitmapEffectStoreProperty(MCExecContext& ctxt, MCBitmapEffect& x_e
     }
 }
 
+static inline MCBitmapEffectType
+MCBitmapEffectsMapPropertyToType (Properties which)
+{
+	return (MCBitmapEffectType) (which - P_BITMAP_EFFECT_DROP_SHADOW);
+}
+
 bool MCBitmapEffectsSetProperty(MCExecContext& ctxt, MCBitmapEffectsRef& self, MCNameRef p_index, Properties which, MCExecValue p_value, bool& r_dirty)
 {
     // First map the property type
 	MCBitmapEffectType t_type;
-	t_type = (MCBitmapEffectType)(which - P_BITMAP_EFFECT_DROP_SHADOW);
+	t_type = MCBitmapEffectsMapPropertyToType (which);
     
     // If 'p_index' is the empty name, this is a whole array op.
     bool t_is_array;
