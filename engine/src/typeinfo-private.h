@@ -38,4 +38,10 @@ bool MCRectangleRecordTypeInfoInitialize (void);
 /* Create the object ID custom type */
 bool MCObjectIdCustomTypeInfoInitialize (void);
 
+/* Create the bitmap effect enumerated types */
+bool MCBitmapEffectEnumTypeInfoInitialize (void);
+
+/* Create the bitmap effect record types */
+bool MCBitmapEffectRecordTypeInfoInitialize (void);
+
 #endif /* !_MC_TYPEINFO_PRIVATE_H_ */

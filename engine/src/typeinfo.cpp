@@ -40,7 +40,9 @@ MCEngineTypeInfoInitialize (void)
 		MCObjectIdCustomTypeInfoInitialize () &&
 		MCRectangleRecordTypeInfoInitialize () &&
 		MCAudioClipFormatTypeInfoInitialize () &&
-		MCTextStyleEnumTypeInfoInitialize ();
+		MCTextStyleEnumTypeInfoInitialize () &&
+		MCBitmapEffectRecordTypeInfoInitialize () &&
+		MCBitmapEffectEnumTypeInfoInitialize ();
 }
 
 void
@@ -59,4 +61,13 @@ MCEngineTypeInfoFinalize (void)
 	kMCAudioClipFormatEnumTypeInfo = nil;
 	MCValueRelease (kMCTextStyleEnumTypeInfo);
 	kMCTextStyleEnumTypeInfo = nil;
+
+	MCValueRelease (kMCBitmapEffectRecordTypeInfo);
+	kMCBitmapEffectRecordTypeInfo = nil;
+	MCValueRelease (kMCOptionalBitmapEffectRecordTypeInfo);
+	kMCOptionalBitmapEffectRecordTypeInfo = nil;
+	MCValueRelease (kMCBitmapEffectBlendModeEnumTypeInfo);
+	kMCBitmapEffectBlendModeEnumTypeInfo = nil;
+	MCValueRelease (kMCBitmapEffectFilterEnumTypeInfo);
+	kMCBitmapEffectFilterEnumTypeInfo = nil;
 }

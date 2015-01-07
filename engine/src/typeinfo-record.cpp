@@ -1,5 +1,5 @@
 /*                                                                   -*- c++ -*-
-Copyright (C) 2003-2014 Runtime Revolution Ltd.
+Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -138,7 +138,56 @@ MCBitmapEffectsToRecord (MCBitmapEffectsRef p_effects,
 }
 
 /* ================================================================
+ * Bitmap effects record types
+ * ================================================================ */
+
+/* ----------------------------------------------------------------
+ * [Private] Initialization
+ * ---------------------------------------------------------------- */
+
+bool
+MCBitmapEffectRecordTypeInfoInitialize (void)
+{
+	static const MCRecordTypeFieldInfo k_type_info_fields[] = {
+		{ MCNAME ("color"), kMCStringTypeInfo },
+		{ MCNAME ("blendMode"), kMCBitmapEffectBlendModeEnumTypeInfo },
+		{ MCNAME ("opacity"), kMCNumberTypeInfo },
+		{ MCNAME ("filter"), kMCBitmapEffectFilterEnumTypeInfo },
+		{ MCNAME ("size"), kMCNumberTypeInfo },
+		{ MCNAME ("spread"), kMCNumberTypeInfo },
+		{ MCNAME ("distance"), kMCNumberTypeInfo },
+		{ MCNAME ("angle"), kMCNumberTypeInfo },
+		{ nil, kMCNullTypeInfo }, /* Custodian */
+	};
+	static const char *k_type_name = "com.livecode.interface.control.bitmapeffect";
+
+	MCAutoTypeInfoRef t_raw_typeinfo;
+	if (!MCRecordTypeInfoCreate (k_type_info_fields,
+	                             -1,
+	                             kMCNullTypeInfo,
+	                             &t_raw_typeinfo))
+		return false;
+
+	MCAutoTypeInfoRef t_typeinfo;
+	if (!(MCNamedTypeInfoCreate (MCNAME (k_type_name), &t_typeinfo) &&
+	      MCNamedTypeInfoBind (*t_typeinfo, *t_raw_typeinfo)))
+		return false;
+
+	MCAutoTypeInfoRef t_optional_typeinfo;
+	if (!MCOptionalTypeInfoCreate (*t_typeinfo, &t_optional_typeinfo))
+		return false;
+
+	kMCBitmapEffectRecordTypeInfo = MCValueRetain (*t_typeinfo);
+	kMCOptionalBitmapEffectRecordTypeInfo =
+		MCValueRetain (*t_optional_typeinfo);
+	return true;
+}
+
+/* ================================================================
  * [Public] Typeinfo constants
  * ================================================================ */
 
 MCTypeInfoRef kMCRectangleRecordTypeInfo;
+
+MCTypeInfoRef kMCBitmapEffectRecordTypeInfo;
+MCTypeInfoRef kMCOptionalBitmapEffectRecordTypeInfo;

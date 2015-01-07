@@ -262,6 +262,65 @@ MCAudioClipFormatEnumToBits (MCEnumRef p_enum,
 	return true;
 }
 
+/* ================================================================
+ * Bitmap effect enumerated types
+ * ================================================================ */
+
+static const MCNativeEnumValueInfo kMCBitmapEffectBlendModeEnumValues[] = {
+	{ kMCBitmapEffectBlendModeNormal, "normal" },
+	{ kMCBitmapEffectBlendModeMultiply, "multiply" },
+	{ kMCBitmapEffectBlendModeScreen, "screen" },
+	{ kMCBitmapEffectBlendModeOverlay, "overlay" },
+	{ kMCBitmapEffectBlendModeDarken, "darken" },
+	{ kMCBitmapEffectBlendModeLighten, "lighten" },
+	{ kMCBitmapEffectBlendModeColorDodge, "dodge" },
+	{ kMCBitmapEffectBlendModeColorBurn, "burn" },
+	{ kMCBitmapEffectBlendModeHardLight, "hardLight" },
+	{ kMCBitmapEffectBlendModeSoftLight, "softLight" },
+	{ kMCBitmapEffectBlendModeDifference, "difference" },
+	{ kMCBitmapEffectBlendModeExclusion, "exclusion" },
+	{ kMCBitmapEffectBlendModeHue, "hue" },
+	{ kMCBitmapEffectBlendModeSaturation, "saturation" },
+	{ kMCBitmapEffectBlendModeColor, "color" },
+	{ kMCBitmapEffectBlendModeLuminosity, "luminosity" },
+	{ 0, NULL },
+};
+
+static const MCNativeEnumValueInfo kMCBitmapEffectFilterEnumValues[] = {
+	{ kMCBitmapEffectFilterFastGaussian, "gaussian" },
+	{ kMCBitmapEffectFilterOnePassBox, "box1pass" },
+	{ kMCBitmapEffectFilterTwoPassBox, "box2pass" },
+	{ kMCBitmapEffectFilterThreePassBox, "box3pass" },
+	{ 0, NULL },
+};
+
+/* ----------------------------------------------------------------
+ * [Private] Initialization
+ * ---------------------------------------------------------------- */
+
+bool
+MCBitmapEffectEnumTypeInfoInitialize (void)
+{
+	{
+		const char *k_type_name = "com.livecode.interface.bitmapeffect.blendmode";
+
+		if (!MCNativeEnumTypeInfoCreateWithName (kMCBitmapEffectBlendModeEnumValues,
+		                                         -1,
+		                                         MCNAME (k_type_name),
+		                                         kMCBitmapEffectBlendModeEnumTypeInfo))
+			return false;
+	}
+	{
+		const char *k_type_name = "com.livecode.interface.bitmapeffect.filter";
+
+		if (!MCNativeEnumTypeInfoCreateWithName (kMCBitmapEffectFilterEnumValues,
+		                                         -1,
+		                                         MCNAME (k_type_name),
+		                                         kMCBitmapEffectFilterEnumTypeInfo))
+			return false;
+	}
+	return true;
+}
 
 /* ================================================================
  * [Public] Typeinfo constants
@@ -272,6 +331,9 @@ MCTypeInfoRef kMCPlayDestinationEnumTypeInfo;
 MCTypeInfoRef kMCInkNamesEnumTypeInfo;
 MCTypeInfoRef kMCAudioClipFormatEnumTypeInfo;
 MCTypeInfoRef kMCTextStyleEnumTypeInfo;
+
+MCTypeInfoRef kMCBitmapEffectBlendModeEnumTypeInfo;
+MCTypeInfoRef kMCBitmapEffectFilterEnumTypeInfo;
 
 /* ================================================================
  * [Public] Compatibility with exec interface types.

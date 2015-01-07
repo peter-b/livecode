@@ -23,6 +23,8 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "parsedef.h"
 #include "sysdefs.h"
 #include "aclip.h"
+#include "bitmapeffect.h"
+#include "bitmapeffectblur.h"
 
 #include "exec.h"
 
@@ -38,6 +40,11 @@ extern MCTypeInfoRef kMCTextStyleEnumTypeInfo;
 extern MCTypeInfoRef kMCAudioClipFormatEnumTypeInfo;
 extern MCTypeInfoRef kMCObjectIdCustomTypeInfo;
 extern MCTypeInfoRef kMCOptionalObjectIdCustomTypeInfo;
+
+extern MCTypeInfoRef kMCBitmapEffectRecordTypeInfo;
+extern MCTypeInfoRef kMCOptionalBitmapEffectRecordTypeInfo;
+extern MCTypeInfoRef kMCBitmapEffectBlendModeEnumTypeInfo;
+extern MCTypeInfoRef kMCBitmapEffectFilterEnumTypeInfo;
 
 /* ----------------------------------------------------------------
  * Compatibility with exec interface types
