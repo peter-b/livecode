@@ -99,6 +99,44 @@ MCRectangleRecordToStruct (MCRecordRef p_record,
 	return true;
 }
 
+/* ----------------------------------------------------------------
+ * [Public] Conversion to/from bitmap effect structs
+ * ---------------------------------------------------------------- */
+
+static bool
+MCBitmapEffectsShadowToRecord (MCBitmapEffectsRef p_effects,
+                               MCRecordRef & r_record)
+{
+	/* Create the record */
+	MCAutoRecordRef t_record;
+	if (!MCRecordCreateMutable (kMCBitmapEffectShadowRecordTypeInfo,
+	                            &t_record))
+		return false;
+
+	
+}
+
+bool
+MCBitmapEffectsToRecord (MCBitmapEffectsRef p_effects,
+                         MCRecordRef & r_record)
+{
+	uint32_t mask = p_effects->mask;
+
+	if (mask & kMCBitmapEffectTypeColorOverlayBit)
+		return MCBitmapEffectsOverlayToRecord (p_effects, r_record);
+
+	else if ((mask & kMCBitmapEffectTypeDropShadowBit) |
+	    (mask & kMCBitmapEffectTypeInnerShadowBit))
+		return MCBitmapEffectsShadowToRecord (p_effects, r_record);
+
+	else if ((mask & kMCBitmapEffectTypeOuterGlowBit) |
+	         (mask & kMCBitmapEffectTypeInnerGlowBit))
+		return MCBitmapEffectsGlowToRecord (p_effects, r_record);
+
+	else
+		return false;
+}
+
 /* ================================================================
  * [Public] Typeinfo constants
  * ================================================================ */
