@@ -1,5 +1,5 @@
 /*                                                                   -*- c++ -*-
-Copyright (C) 2003-2014 Runtime Revolution Ltd.
+Copyright (C) 2003-2015 Runtime Revolution Ltd.
 
 This file is part of LiveCode.
 
@@ -243,16 +243,15 @@ MCTypeInfoGetValueWithExecTypeInfo (MCTypeInfoRef p_typeinfo,
 	                              p_typeinfo));
 
 	MCNameRef t_name = (MCNameRef) (MCEnumGetValue (p_enum));
-	const char *t_tag = MCStringGetCString (MCNameGetString (t_name));
 
 	/* Try to find a member of the exec enum that matches */
 	for (uindex_t i = 0; i < p_info->count; ++i)
 	{
-		if (0 == strcmp (t_tag, p_info->elements[i].tag))
-		{
-			r_bits = p_info->elements[i].value;
-			return true;
-		}
+		if (!MCNameIsEqualTo (t_name, MCNAME(p_info->elements[i].tag)))
+			continue;
+
+		r_bits = p_info->elements[i].value;
+		return true;
 	}
 
 	MCUnreachable (); /* No match found iff programming error */
