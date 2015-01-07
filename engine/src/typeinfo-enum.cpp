@@ -267,6 +267,7 @@ MCAudioClipFormatEnumToBits (MCEnumRef p_enum,
  * [Public] Typeinfo constants
  * ================================================================ */
 
+MCTypeInfoRef kMCLayerModeEnumTypeInfo;
 MCTypeInfoRef kMCPlayDestinationEnumTypeInfo;
 MCTypeInfoRef kMCInkNamesEnumTypeInfo;
 MCTypeInfoRef kMCAudioClipFormatEnumTypeInfo;

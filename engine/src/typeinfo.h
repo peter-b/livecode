@@ -83,6 +83,12 @@ MC_TYPEINFO_DEFINE_EXEC_ENUM(InkNames)
 MC_TYPEINFO_DEFINE_EXEC_ENUM(PlayDestination)
 
 /* ----------------------------------------------------------------
+ * Control layer mode
+ * ---------------------------------------------------------------- */
+
+MC_TYPEINFO_DEFINE_EXEC_ENUM(LayerMode);
+
+/* ----------------------------------------------------------------
  * Audio clip format
  * ---------------------------------------------------------------- */
 
