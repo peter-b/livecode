@@ -386,6 +386,37 @@ __MCSFileSetContents (MCStringRef p_native_path,
  * Path manipulation
  * ================================================================ */
 
+bool
+__MCSFilePathCanonicalize (MCStringRef p_native_path,
+                           MCStringRef & r_canonical_native_path)
+{
+	bool t_success = true;
+
+	/* Get a system path */
+	MCAutoStringRefAsSysString t_path_sys;
+	if (!t_path_sys.Lock(p_native_path))
+		return false;
+
+	/* Call realpath(3) to canonicalize */
+	char *t_canonical_sys;
+
+	errno = 0;
+	t_canonical_sys = realpath (*t_path_sys, NULL);
+
+	if (NULL == t_canonical_sys)
+		return __MCSFileThrowIOErrorWithErrno (p_native_path, MCSTR("Failed to resolve path '%{path}': %s"), errno);
+
+	/* Convert back to LC string */
+	MCAutoStringRef t_canonical;
+	if (t_success)
+		t_success = MCStringCreateWithSysString (t_canonical_sys, &t_canonical);
+
+	free (t_canonical_sys);
+
+	r_canonical_native_path = MCValueRetain (*t_canonical);
+	return t_success;
+}
+
 /* We require filenames to be able to be round-tripped to a system
  * string and back again in order to be validly converted to a native
  * filename.  We also require the system string encoding to contain no

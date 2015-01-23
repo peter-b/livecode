@@ -104,6 +104,21 @@ __MCSFileThrowInvalidPathError (MCStringRef p_path)
 }
 
 /* ================================================================
+ * Path manipulation
+ * ================================================================ */
+
+bool
+MCSFilePathCanonicalize (MCStringRef p_path,
+                         MCStringRef & r_canonical_path)
+{
+	MCAutoStringRef t_native_path, t_canonical_native_path;
+	return
+		__MCSFilePathToNative (p_path, &t_native_path) &&
+		__MCSFilePathCanonicalize (*t_native_path, &t_canonical_native_path) &&
+		__MCSFilePathFromNative (&t_canonical_native_path, r_canonical_path);
+}
+
+/* ================================================================
  * Whole-file IO
  * ================================================================ */
 

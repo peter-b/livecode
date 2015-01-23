@@ -41,8 +41,22 @@ bool __MCSFileThrowInvalidPathError (MCStringRef p_path);
  * Path manipulation
  * ================================================================ */
 
+/* Return the canonical absolute path corresponding to p_path, by:
+ *
+ * 1. Making p_path absolute relative to the current working
+ *    directory
+ * 2. Resolving all '.' and '..' components
+ * 3. Expanding all symbolic links
+ * 4. Removing extra '/' characters
+ *
+ * Fails with an error if the named file does not exist or is not
+ * accessible.
+ */
+bool MCSFilePathCanonicalize (MCStringRef p_path, MCStringRef & r_canonical_path);
+
 #ifdef __MCS_INTERNAL_API__
 
+bool __MCSFilePathCanonicalize (MCStringRef p_native_path, MCStringRef & r_canonical_native_path);
 bool __MCSFilePathToNative (MCStringRef p_path, MCStringRef & r_native_path);
 bool __MCSFilePathFromNative (MCStringRef p_native_path, MCStringRef & r_path);
 

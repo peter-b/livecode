@@ -317,6 +317,88 @@ __MCSFileSetContents (MCStringRef p_native_path,
  * Path manipulation
  * ================================================================ */
 
+bool
+__MCSFilePathCanonicalize (MCStringRef p_native_path,
+                           MCStringRef & r_canonical_native_path)
+{
+	/* Open a unreadable, unwritable file handle */
+	DWORD t_share_mode = (FILE_SHARE_DELETE | FILE_SHARE_READ |
+	                      FILE_SHARE_WRITE);
+
+	HANDLE t_handle = INVALID_HANDLE_VALUE;
+	t_handle = CreateFileW (*t_path_w32,            /* filename */
+	                        0,                      /* desired access */
+	                        t_share_mode,           /* share mode */
+	                        NULL,                   /* security attr. */
+	                        OPEN_EXISTING,          /* creation disp. */
+	                        FILE_ATTRIBUTE_NORMAL,  /* flags & attrs. */
+	                        NULL);                  /* template file */
+
+	if (INVALID_HANDLE_VALUE == t_handle)
+	{
+		return __MCSFileThrowIOErrorWithErrorCode (p_native_path, MCSTR("Failed to find canonical path for '%{path}'; failed to open file: %{description}"), GetLastError());
+	}
+
+	/* Get the final path for the handle. This will be the fully resolved
+	 * path and filename. */
+	size_t t_final_path_w32_alloc;
+	unichar_t *t_final_path_w32 = NULL;
+	DWORD t_final_path_w32_len = 0;
+
+	while (true)
+	{
+		/* Allocate (or expand) the string buffer for the
+		 * canonicalized filename */
+		if (0 == t_final_path_w32_len) /* Catch initial state */
+			t_final_path_w32_alloc = MAX_PATH;
+		else
+			t_final_path_w32_alloc = t_final_path_w32_len;
+
+		if (!MCMemoryReallocate (t_final_path_w32,
+		                         t_final_path_w32_alloc,
+		                         t_final_path_w32))
+			goto error_cleanup;
+
+		/* Get the final filename for the file handle */
+		MCAssert (NULL != t_final_path_w32);
+
+		t_final_path_w32_len =
+			GetFinalPathNameByHandleW(t_handle, t_final_path_w32,
+			                          t_final_path_w32_alloc, 0);
+
+		if (0 == t_final_path_w32_len)
+		{
+			__MCSFileThrowIOErrorWithErrorCode (p_native_path, MCSTR("Failed to get canonical path for '%{path}': %{description}"), GetLastError());
+			goto error_cleanup;
+		}
+
+		/* If the returned size is smaller than the allocated buffer
+		 * size, then the final filename was successfully
+		 * retrieved. */
+		if (t_final_path_w32_len < t_final_path_w32_alloc)
+			break;
+	}
+
+	CloseHandle (t_handle);
+
+	/* Convert the final path into a LiveCode string */
+	MCAutoStringRef t_canonical;
+	if (!MCStringCreateWithChars (t_final_path_w32, t_final_path_w32_len,
+	                              &t_canonical))
+		goto error_cleanup;
+
+	MCMemoryDeallocate (t_final_path_w32);
+
+	return MCStringCopy (t_canonical, r_canonical_native_path);
+
+ error_cleanup:
+	if (INVALID_HANDLE_VALUE != t_handle)
+		CloseHandle (t_handle);
+	if (NULL != t_final_path_w32)
+		MCMemoryDeallocate (t_final_path_w32);
+	return false;
+}
+
 /* Convert a path in LiveCode representation (with '/' as the file
  * separator) to a Windows path (using '\').  This function also
  * performs some (very) limited validation, ensuring that the input
