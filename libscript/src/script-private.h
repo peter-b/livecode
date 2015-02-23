@@ -121,6 +121,11 @@ bool MCScriptAddPackageToModule(MCScriptModuleRef module, MCScriptPackageRef pac
 /* Remove a package from a module */
 bool MCScriptRemovePackageFromModule(MCScriptModuleRef module);
 
+/* Group the x_modules into a new package.  The name is permitted to
+ * be NULL if no naming information is available for the package, but
+ * the filename is required. */
+bool MCScriptCreatePackageWithModules(MCScriptModuleRef *x_modules, size_t p_module_count, MCNameRef p_name, MCStringRef p_filename);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 enum MCScriptTypeKind

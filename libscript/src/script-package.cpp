@@ -17,6 +17,7 @@
 #include "script.h"
 #include "script-private.h"
 #include "foundation-auto.h"
+#include "script-auto.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -183,5 +184,58 @@ MCScriptLookupPackage (MCNameRef p_name,
 		return false;
 
 	r_package = t_info.m_result;
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool
+MCScriptCreatePackageWithModules (MCScriptModuleRef *x_modules,
+                                  size_t p_module_count,
+                                  MCNameRef p_name,
+                                  MCStringRef p_filename)
+{
+	MCAssert (NULL != x_modules);
+	MCAssert (NULL != p_filename);
+
+	if (0 == p_module_count)
+		return true;
+
+	for (size_t i = 0; i < p_module_count; ++i)
+		if (!MCScriptRemovePackageFromModule (x_modules[i]))
+			return false;
+
+	/* ---------- Allocate package structure */
+	MCAutoScriptPackageRef t_package;
+	if (!MCScriptCreateObject (kMCScriptObjectKindPackage,
+	                           sizeof(MCScriptPackage),
+	                           (MCScriptObject*&) &t_package))
+		return false;
+
+	/* ---------- Populate fields */
+
+	(*t_package)->filename = MCValueRetain (p_filename);
+
+	if (NULL != p_name)
+		(*t_package)->name = MCValueRetain (p_name);
+	else
+		(*t_package)->name = NULL;
+
+	/* Note that since we add a reference to the package to the
+	 * module, the package *shouldn't* retain the modules, or it will
+	 * lead to a reference loop. */
+	if (!MCMemoryNewArray (p_module_count,
+	                       (*t_package)->modules,
+	                       (*t_package)->module_count))
+		return false;
+
+	for (size_t i = 0; i < p_module_count; ++i)
+	{
+		/* Weak package->module reference */
+		(*t_package)->modules[i] = x_modules[i];
+		/* Strong module->package reference */
+		x_modules[i]->package = MCScriptRetainPackage (*t_package);
+	}
+
 	return true;
 }
