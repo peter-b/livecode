@@ -146,6 +146,9 @@ bool MCScriptLoadPackageFromFile(MCStringRef filename, MCScriptPackageRef& r_pac
 // caller must release the package ref when finished with it.
 bool MCScriptLoadPackageWithName(MCNameRef name, MCScriptPackageRef& r_package);
 
+// Returns a list of the modules provided by the package
+bool MCScriptCopyModulesOfPackage(MCScriptPackageRef package, /* copy */ MCProperListRef & r_module_names);
+
 // Retain a package.
 MCScriptPackageRef MCScriptRetainPackage(MCScriptPackageRef package);
 

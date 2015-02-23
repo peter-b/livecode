@@ -16,6 +16,7 @@
 
 #include "script.h"
 #include "script-private.h"
+#include "foundation-auto.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,4 +48,30 @@ MCScriptReleasePackage (MCScriptPackageRef self)
 	__MCScriptValidateObjectAndKind__ (self, kMCScriptObjectKindPackage);
 
 	MCScriptReleaseObject (self);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool
+MCScriptCopyModulesOfPackage (MCScriptPackageRef self,
+                              MCProperListRef & r_module_names)
+{
+	MCAutoProperListRef t_module_names;
+
+	MCAssert (NULL != self);
+
+	if (!MCProperListCreateMutable (&t_module_names))
+		return false;
+
+	for (uindex_t i = 0; i < self->module_count; ++i)
+	{
+		if (!MCProperListPushElementOntoBack (*t_module_names,
+		                                      self->modules[i]->name))
+			return false;
+	}
+
+	if (!MCProperListCopy (*t_module_names, r_module_names))
+		return false;
+
+	return true;
 }
