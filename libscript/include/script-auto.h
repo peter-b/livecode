@@ -22,79 +22,44 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 /* ================================================================ */
 
-class MCAutoScriptModuleRef
+template <typename T, T (*REF)(T), void (*UNREF)(T)>
+class MCAutoScriptValueRefBase
 {
 public:
-	MCAutoScriptModuleRef (void)
+	MCAutoScriptValueRefBase (void)
+		: m_value(nil)
+	{}
+
+	~MCAutoScriptValueRefBase (void)
 	{
-		m_value = nil;
+		UNREF (m_value);
 	}
 
-	~MCAutoScriptModuleRef (void)
-	{
-		MCScriptReleaseModule (m_value);
-	}
-
-	MCScriptModuleRef operator = (MCScriptModuleRef value)
+	MCAutoScriptValueRefBase operator = (T value)
 	{
 		MCAssert (nil == m_value);
-		m_value = MCScriptRetainModule (value);
+		m_value = REF (value);
 		return value;
 	}
 
-	MCScriptModuleRef& operator & (void)
+	T & operator & (void)
 	{
 		MCAssert (nil == m_value);
 		return m_value;
 	}
 
-	MCScriptModuleRef operator * (void) const
+	T operator * (void) const
 	{
 		return m_value;
 	}
 
 private:
-	MCScriptModuleRef m_value;
-
-	MCAutoScriptModuleRef & operator = (MCAutoScriptModuleRef & x);
+	T m_value;
+	MCAutoScriptValueRefBase<T,REF,UNREF> & operator = (MCAutoScriptValueRefBase<T,REF,UNREF> & x);
 };
 
-class MCAutoScriptInstanceRef
-{
-public:
-	MCAutoScriptInstanceRef (void)
-	{
-		m_value = nil;
-	}
-
-	~MCAutoScriptInstanceRef (void)
-	{
-		MCScriptReleaseInstance (m_value);
-	}
-
-	MCScriptInstanceRef operator = (MCScriptInstanceRef value)
-	{
-		MCAssert (nil == m_value);
-		m_value = MCScriptRetainInstance (value);
-		return value;
-	}
-
-	MCScriptInstanceRef& operator & (void)
-	{
-		MCAssert (nil == m_value);
-		return m_value;
-	}
-
-	MCScriptInstanceRef operator * (void) const
-	{
-		return m_value;
-	}
-
-private:
-	MCScriptInstanceRef m_value;
-
-	MCAutoScriptInstanceRef & operator = (MCAutoScriptInstanceRef & x);
-};
+typedef MCAutoScriptValueRefBase<MCScriptModuleRef, MCScriptRetainModule, MCScriptReleaseModule> MCAutoScriptModuleRef;
+typedef MCAutoScriptValueRefBase<MCScriptInstanceRef, MCScriptRetainInstance, MCScriptReleaseInstance> MCAutoScriptInstanceRef;
 
 /* ================================================================ */
 
