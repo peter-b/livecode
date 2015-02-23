@@ -158,6 +158,10 @@ bool MCScriptCreateModuleFromStream(MCStreamRef stream, MCScriptModuleRef& r_mod
 // Load module from a blob
 bool MCScriptCreateModuleFromData(MCDataRef data, MCScriptModuleRef & r_module);
 
+/* Load a module from a file.  The filename must be the path to a bare
+ * LiveCode Builder bytecode file. */
+bool MCScriptCreateModuleFromFile(MCStringRef filename, MCScriptModuleRef& r_module);
+
 // Lookup the module with the given name. Returns false if no such module exists.
 bool MCScriptLookupModule(MCNameRef name, MCScriptModuleRef& r_module);
 

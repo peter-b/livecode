@@ -15,6 +15,7 @@
  along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 #include <foundation.h>
+#include <foundation-system.h>
 #include <foundation-auto.h>
 
 #include <script.h>
@@ -461,6 +462,44 @@ bool MCScriptCreateModuleFromStream(MCStreamRef stream, MCScriptModuleRef& r_mod
     r_module = t_module;
     
     return true;
+}
+
+static bool
+MCScriptCreateModuleFromBareFile (MCStringRef p_filename,
+                                  MCScriptModuleRef & r_module)
+{
+	MCAutoDataRef t_module_data;
+	MCAutoScriptModuleRef t_module;
+
+	/* Read and load module */
+	if (!MCSFileGetContents (p_filename, &t_module_data))
+		return false;
+	if (!MCScriptCreateModuleFromData (*t_module_data, &t_module))
+		return false;
+
+	/* FIXME Add module to the package corresponding to the directory containing
+	 * p_filename. */
+
+	r_module = MCScriptRetainModule (*t_module);
+	return true;
+}
+
+bool
+MCScriptCreateModuleFromFile (MCStringRef p_filename,
+                              MCScriptModuleRef & r_module)
+{
+	MCAutoScriptModuleRef t_module;
+
+	MCAssert (NULL != p_filename);
+	if (MCErrorIsPending ()) return false;
+
+	/* FIXME Add support for loading modules from packed package archives
+	 * or unpacked package directories. */
+	if (!MCScriptCreateModuleFromBareFile (p_filename, &t_module))
+		return false;
+
+	r_module = MCScriptRetainModule (*t_module);
+	return true;
 }
 
 bool
