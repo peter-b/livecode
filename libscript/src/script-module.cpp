@@ -479,6 +479,12 @@ MCNameRef MCScriptGetNameOfModule(MCScriptModuleRef self)
     return self -> name;
 }
 
+MCScriptPackageRef
+MCScriptGetPackageOfModule (MCScriptModuleRef self)
+{
+	return self -> package;
+}
+
 bool MCScriptIsModuleALibrary(MCScriptModuleRef self)
 {
     return self -> module_kind == kMCScriptModuleKindLibrary;

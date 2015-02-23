@@ -160,6 +160,10 @@ bool MCScriptEnsureModuleIsUsable(MCScriptModuleRef module);
 // Get the name of the module.
 MCNameRef MCScriptGetNameOfModule(MCScriptModuleRef module);
 
+// Get the package of the module.  Returns NULL if the module was not
+// loaded from a package.
+MCScriptPackageRef MCScriptGetPackageOfModule(MCScriptModuleRef module);
+
 // Returns true if the module is a library.
 bool MCScriptIsModuleALibrary(MCScriptModuleRef module);
 
