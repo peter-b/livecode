@@ -60,6 +60,7 @@ private:
 
 typedef MCAutoScriptValueRefBase<MCScriptModuleRef, MCScriptRetainModule, MCScriptReleaseModule> MCAutoScriptModuleRef;
 typedef MCAutoScriptValueRefBase<MCScriptInstanceRef, MCScriptRetainInstance, MCScriptReleaseInstance> MCAutoScriptInstanceRef;
+typedef MCAutoScriptValueRefBase<MCScriptPackageRef, MCScriptRetainPackage, MCScriptReleasePackage> MCAutoScriptPackageRef;
 
 /* ================================================================ */
 

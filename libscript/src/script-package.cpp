@@ -29,3 +29,22 @@ void MCScriptDestroyPackage(MCScriptPackageRef self)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+MCScriptPackageRef
+MCScriptRetainPackage (MCScriptPackageRef self)
+{
+	__MCScriptValidateObjectAndKind__ (self, kMCScriptObjectKindPackage);
+
+	return (MCScriptPackageRef) MCScriptRetainObject (self);
+}
+
+void
+MCScriptReleasePackage (MCScriptPackageRef self)
+{
+	if (nil == self)
+		return;
+
+	__MCScriptValidateObjectAndKind__ (self, kMCScriptObjectKindPackage);
+
+	MCScriptReleaseObject (self);
+}

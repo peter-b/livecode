@@ -146,10 +146,11 @@ bool MCScriptLoadPackageFromFile(MCStringRef filename, MCScriptPackageRef& r_pac
 // caller must release the package ref when finished with it.
 bool MCScriptLoadPackageWithName(MCNameRef name, MCScriptPackageRef& r_package);
 
-// Marks a package so it unloads from memory as soon as it can. This occurs when
-// there are no more (external) references to the package object, any of its
-// modules, or any instances of those modules.
-bool MCScriptUnloadPackage(MCScriptPackageRef package);
+// Retain a package.
+MCScriptPackageRef MCScriptRetainPackage(MCScriptPackageRef package);
+
+// Release a package.
+void MCScriptReleasePackage(MCScriptPackageRef package);
 
 ////////////////////////////////////////////////////////////////////////////////
 
