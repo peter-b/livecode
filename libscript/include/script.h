@@ -137,15 +137,6 @@ void MCScriptFinalize(void);
 //      so there's no problem there. The IDE will have to copy a package to a place
 //      it manages and then index it. It can then load and unload packages on demand.
 
-// Loads a package into memory from a file - this might result in multiple modules
-// being loaded if the package is an umbrella. The caller must release the package
-// ref when finished with it.
-bool MCScriptLoadPackageFromFile(MCStringRef filename, MCScriptPackageRef& r_package);
-
-// Loads a package into memory by name - this uses the standard search path. The
-// caller must release the package ref when finished with it.
-bool MCScriptLoadPackageWithName(MCNameRef name, MCScriptPackageRef& r_package);
-
 // Returns a list of the modules provided by the package
 bool MCScriptCopyModulesOfPackage(MCScriptPackageRef package, /* copy */ MCProperListRef & r_module_names);
 
