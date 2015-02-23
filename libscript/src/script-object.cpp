@@ -49,6 +49,7 @@ struct MCBuiltinModule
 
 static MCScriptModuleRef s_builtin_module = nil;
 static MCScriptModuleRef *s_builtin_modules = nil;
+static MCScriptPackageRef s_builtin_package = nil;
 static uindex_t s_builtin_module_count = 0;
 static bool MCFetchBuiltinModuleSection(MCBuiltinModule**& r_modules, unsigned int& r_count);
 
@@ -92,7 +93,15 @@ bool MCScriptInitialize(void)
     }
     
     s_builtin_module_count = t_module_count;
-    
+
+	/* Add compiled-in modules to "__builtin__" package */
+	MCScriptCreatePackageWithModules (s_builtin_modules,
+	                                  s_builtin_module_count,
+	                                  MCNAME("__builtin__"),
+	                                  kMCEmptyString);
+	if (!MCScriptLookupPackage (MCNAME("__builtin__"), s_builtin_package))
+		return false;
+
     // This block builds the builtin module - which isn't possible to compile from
     // source as the names of the types we are defining are currently part of the
     // syntax of the language.
@@ -250,6 +259,10 @@ bool MCScriptInitialize(void)
             return false;
         
         MCValueRelease(t_stream);
+
+		/* Add "__builtin__" module to "__builtin__" package */
+		if (!MCScriptAddPackageToModule (s_builtin_module, s_builtin_package))
+			return false;
     }
     
     // This block creates all the default errors
