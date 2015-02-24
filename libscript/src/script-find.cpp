@@ -23,6 +23,12 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include <script-auto.h>
 #include "script-private.h"
 
+#ifdef _WIN32
+#	include <windows.h>
+#else
+#	include <unistd.h>
+#endif
+
 #define MC_SCRIPT_FIND_ENV "LC_MODULE_PATH"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,4 +47,155 @@ MCProperListRef
 MCScriptGetModuleSearchPath (void)
 {
 	return s_search_path;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool
+MCScriptCreateDefaultModuleSearchPath (MCProperListRef & r_directory_list)
+{
+	/* The "compiled-in" default search path is empty,for now. */
+	MCAutoProperListRef t_compiled_in;
+	t_compiled_in = kMCEmptyProperList;
+
+	/* ---------- Read environment variable. */
+	MCAutoStringRef t_env_string;
+
+#ifdef __WINDOWS__
+	{
+		MCAutoStringRef t_env_key;
+		if (!MCStringCreateWithCString (MC_SCRIPT_FIND_ENV, &t_env_key))
+			return false;
+
+		MCAutoStringRefAsWString t_env_key_w32;
+		if (!t_env_key_w32.Lock (t_env_key))
+			return false;
+
+		MCAutoArray<unichar_t> t_buffer_w32;
+		if (!t_buffer_w32.New (1024))
+			return false;
+
+		uint32_t t_env_len_w32;
+		while (true)
+		{
+			t_env_len_w32 = GetEnvironmentVariableW (*t_env_key_w32,
+			                                         t_buffer_w32.Ptr(),
+			                                         t_buffer_w32.Size());
+
+			/* Check whether no variable was found */
+			if (0 == t_env_len_w32)
+			{
+				t_env_string = kMCEmptyString;
+				break;
+			}
+
+			/* Check if retrieved variable successfully */
+			if (t_env_len_w32 <= t_buffer_w32.Size())
+			{
+				if (!MCStringCreateWithWString (t_buffer_w32.Ptr(),
+				                                &t_env_string))
+					return false;
+				break;
+			}
+
+			/* Expand buffer */
+			if (!t_buffer_w32.Resize (t_env_len_w32))
+				return false;
+		}
+	}
+#else /* ! __WINDOWS__  (non-Windows platforms) */
+	{
+		/* SECURITY */
+		/* Ignore -- and delete! -- the environment variable if in a
+		 * secure execution context (typically due to running in a
+		 * setgid or setuid program) */
+		bool t_secure = false;
+		t_secure |= (getuid() != geteuid());
+		t_secure |= (getgid() != getegid());
+
+		/* FIXME check whether process has a nonempty permitted
+		 * capability set on Linux */
+
+		if (t_secure)
+		{
+			unsetenv (MC_SCRIPT_FIND_ENV);
+			t_env_string = kMCEmptyString;
+		}
+		else
+		{
+			char *t_env = getenv (MC_SCRIPT_FIND_ENV);
+#	ifdef __LINUX__
+			if (!MCStringCreateWithSysString (t_env, &t_env_string))
+				return false;
+#	else
+			if (!MCStringCreateWithBytes (t_env, strlen (t_env),
+			                              kMCStringEncodingUTF8,
+			                              false,
+			                              &t_env_string))
+				return false;
+#   endif
+		}
+	}
+#endif /* ! __WINDOWS__ */
+
+	/* ---------- Split environment into list. */
+	/* We split on [;:]. First replace every incidence of ':' with ';', then
+	 * split on ';'. */
+	MCAutoStringRef t_env_string_subst;
+	if (!MCStringMutableCopy (*t_env_string, &t_env_string_subst))
+		return false;
+	if (!MCStringFindAndReplaceChar (*t_env_string_subst, ':', ';',
+	                                 kMCStringOptionCompareExact))
+		return false;
+
+	MCAutoProperListRef t_env_paths;
+	if (!MCStringSplitByDelimiter (*t_env_string_subst, MCSTR(";"),
+	                               kMCStringOptionCompareExact,
+	                               &t_env_paths))
+		return false;
+
+	/* ---------- Build final environment list */
+	/* Replace the first empty element in the environment search path
+	 * with the compiled-in search path, and delete any other empty
+	 * elements.  This allows the environment variable to be used to
+	 * prepend and/or append elements to the compiled-in search path.
+	 * If no empty element is found in the environment search path,
+	 * prepend the environment search path to the compiled-in search
+	 * path.*/
+	bool spliced = false;
+	MCAutoProperListRef t_new_search_path;
+	if (!MCProperListMutableCopy (*t_env_paths, &t_new_search_path))
+		return false;
+
+	for (uindex_t i = 0; i < MCProperListGetLength (*t_new_search_path); ++i)
+	{
+		MCStringRef t_element;
+		t_element = (MCStringRef) MCProperListFetchElementAtIndex (*t_new_search_path, i);
+		MCAssert (NULL != t_element);
+
+		if (!MCStringIsEmpty (t_element))
+			continue;
+
+		/* Delete empty elements */
+		if (spliced)
+		{
+			if (!MCProperListRemoveElement (*t_new_search_path, i))
+				return false;
+			continue;
+		}
+
+		/* Splice in compiled-in list */
+		if (!MCProperListInsertList (*t_new_search_path,
+		                             *t_compiled_in, i))
+			return false;
+		spliced = true;
+	}
+
+	if (!spliced)
+	{
+		if (!MCProperListAppendList (*t_new_search_path, *t_compiled_in))
+			return false;
+	}
+
+	return MCProperListCopy (*t_new_search_path, r_directory_list);
 }

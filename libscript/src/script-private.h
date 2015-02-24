@@ -128,6 +128,10 @@ bool MCScriptCreatePackageWithModules(MCScriptModuleRef *x_modules, size_t p_mod
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool MCScriptCreateDefaultModuleSearchPath (MCProperListRef & r_directory_list);
+
+////////////////////////////////////////////////////////////////////////////////
+
 enum MCScriptTypeKind
 {
     kMCScriptTypeKindDefined,
