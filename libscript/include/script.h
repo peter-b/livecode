@@ -140,6 +140,10 @@ void MCScriptFinalize(void);
 // Returns a list of the modules provided by the package
 bool MCScriptCopyModulesOfPackage(MCScriptPackageRef package, /* copy */ MCProperListRef & r_module_names);
 
+/* Lookup the package with the given name.  Returns false if no such
+ * package exists. */
+bool MCScriptLookupPackage(MCNameRef name, MCScriptPackageRef & r_package);
+
 // Retain a package.
 MCScriptPackageRef MCScriptRetainPackage(MCScriptPackageRef package);
 

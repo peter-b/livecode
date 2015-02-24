@@ -134,3 +134,54 @@ MCScriptAddPackageToModule(MCScriptModuleRef x_module,
 
 	return true;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct MCScriptLookupPackage_Info
+{
+	MCNameRef m_name;
+	MCScriptPackageRef m_result;
+};
+
+bool
+MCScriptLookupPackage_Func (void *x_context,
+                            MCScriptModuleRef p_module)
+{
+	MCScriptLookupPackage_Info *info =
+		(MCScriptLookupPackage_Info *) x_context;
+
+	if (NULL == info->m_result &&
+	    NULL != p_module->package &&
+	    NULL != p_module->package->name &&
+	    MCNameIsEqualTo (p_module->package->name, info->m_name))
+	{
+		info->m_result = p_module->package;
+	}
+
+	return true;
+}
+
+bool
+MCScriptLookupPackage (MCNameRef p_name,
+                       MCScriptPackageRef & r_package)
+{
+	/* Unnamed packages can't ever be found */
+	if (NULL == p_name)
+		return false;
+
+	/* Currently this is implemented by searching all the loaded
+	 * modules for packages and testing if the package found has a
+	 * matching name. */
+	MCScriptLookupPackage_Info t_info;
+	t_info.m_name = p_name;
+	t_info.m_result = NULL;
+
+	if (!MCScriptModulesApply (MCScriptLookupPackage_Func, &t_info))
+		return false;
+
+	if (NULL == t_info.m_result)
+		return false;
+
+	r_package = t_info.m_result;
+	return true;
+}
