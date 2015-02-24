@@ -423,6 +423,9 @@ MCNameRef MCScriptGetNameOfLocalVariableInModule(MCScriptModuleRef module, MCScr
 MCNameRef MCScriptGetNameOfGlobalVariableInModule(MCScriptModuleRef module, uindex_t index);
 MCNameRef MCScriptGetNameOfContextVariableInModule(MCScriptModuleRef module, uindex_t index);
 
+/* Apply a function over all loaded modules. */
+bool MCScriptModulesApply (bool (*p_func)(void *, MCScriptModuleRef), void *p_context);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 struct MCScriptInstance: public MCScriptObject

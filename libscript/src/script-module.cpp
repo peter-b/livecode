@@ -462,6 +462,20 @@ bool MCScriptCreateModuleFromStream(MCStreamRef stream, MCScriptModuleRef& r_mod
     return true;
 }
 
+bool
+MCScriptModulesApply (bool (*p_func)(void *, MCScriptModuleRef),
+                      void *p_context)
+{
+	for (MCScriptModule *t_module = s_modules;
+	     t_module != nil;
+	     t_module = t_module->next_module)
+	{
+		if (!p_func(p_context, t_module))
+			return false;
+	}
+	return true;
+}
+
 bool MCScriptLookupModule(MCNameRef p_name, MCScriptModuleRef& r_module)
 {
     for(MCScriptModule *t_module = s_modules; t_module != nil; t_module = t_module -> next_module)
