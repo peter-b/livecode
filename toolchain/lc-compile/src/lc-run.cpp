@@ -312,19 +312,9 @@ static bool
 MCRunLoadModule (MCStringRef p_filename,
                  MCScriptModuleRef & r_module)
 {
-	MCAutoDataRef t_module_data;
-	MCAutoValueRefBase<MCStreamRef> t_stream;
 	MCAutoScriptModuleRef t_module;
 
-	if (!MCSFileGetContents (p_filename, &t_module_data))
-		return false;
-
-	if (!MCMemoryInputStreamCreate (MCDataGetBytePtr (*t_module_data),
-	                                MCDataGetLength (*t_module_data),
-	                                &t_stream))
-		return false;
-
-	if (!MCScriptCreateModuleFromStream (*t_stream, &t_module))
+	if (!MCScriptCreateModuleFromFile (p_filename, &t_module))
 		return false;
 
 	if (!MCScriptEnsureModuleIsUsable (*t_module))
