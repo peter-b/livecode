@@ -115,6 +115,12 @@ struct MCScriptPackage: public MCScriptObject
 
 void MCScriptDestroyPackage(MCScriptPackageRef package);
 
+/* Add a package to a module. */
+bool MCScriptAddPackageToModule(MCScriptModuleRef module, MCScriptPackageRef package);
+
+/* Remove a package from a module */
+bool MCScriptRemovePackageFromModule(MCScriptModuleRef module);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 enum MCScriptTypeKind

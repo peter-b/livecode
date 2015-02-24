@@ -26,7 +26,7 @@ void MCScriptDestroyPackage(MCScriptPackageRef self)
     
     MCValueRelease(self -> filename);
     MCValueRelease(self -> name);
-    MCScriptReleaseArray(self -> modules, self -> module_count);
+    MCMemoryDeleteArray (self -> modules);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,65 @@ MCScriptCopyModulesOfPackage (MCScriptPackageRef self,
 
 	if (!MCProperListCopy (*t_module_names, r_module_names))
 		return false;
+
+	return true;
+}
+
+bool
+MCScriptRemovePackageFromModule(MCScriptModuleRef x_module)
+{
+	MCAssert (NULL != x_module);
+
+	MCScriptPackageRef t_package;
+	t_package = x_module->package;
+
+	if (NULL == t_package)
+		return true;
+
+	for (size_t i = 0; i < t_package->module_count; ++i)
+	{
+		if (t_package->modules[i] != x_module)
+			continue;
+
+		/* Remove the module from the package's module list, filling
+		 * the gap with the last module in the module list. */
+		--t_package->module_count;
+		t_package->modules[i] =
+			t_package->modules[t_package->module_count];
+		break;
+	}
+
+	/* Release the module's pointer to the package */
+	MCScriptReleasePackage (t_package);
+	x_module->package = NULL;
+
+	return true;
+}
+
+bool
+MCScriptAddPackageToModule(MCScriptModuleRef x_module,
+                           MCScriptPackageRef x_package)
+{
+	MCAssert (NULL != x_module);
+	MCAssert (NULL != x_package);
+
+	if (x_module->package == x_package)
+		return true;
+
+	/* Delete the module's existing package reference */
+	if (!MCScriptRemovePackageFromModule (x_module))
+		return false;
+
+	/* Expand the package's module list and append the module */
+	if (!MCMemoryResizeArray (x_package->module_count + 1,
+	                          x_package->modules,
+	                          x_package->module_count))
+		return false;
+
+	x_package->modules[x_package->module_count - 1] = x_module;
+
+	/* Add a strong reference from the module to the package */
+	x_module->package = MCScriptRetainPackage (x_package);
 
 	return true;
 }

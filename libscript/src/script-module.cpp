@@ -208,6 +208,8 @@ void MCScriptDestroyModule(MCScriptModuleRef self)
     __MCScriptValidateObjectAndKind__(self, kMCScriptObjectKindModule);
     
     // Release the bits pickle-release doesn't touch.
+    MCScriptRemovePackageFromModule (self);
+
     for(uindex_t i = 0; i < self -> dependency_count; i++)
         if (self -> dependencies[i] . instance != nil)
             MCScriptReleaseInstance(self -> dependencies[i] . instance);
