@@ -285,6 +285,13 @@ bool MCScriptInitialize(void)
         MCScriptCreateNamedErrorType(MCNAME("livecode.lang.CannotCallContextHandlerError"), MCSTR("Cannot call context handler"), kMCScriptCannotCallContextHandlerErrorTypeInfo);
     }
 
+	/* Initialize the module search path */
+	MCAutoProperListRef t_default_search_path;
+	if (!MCScriptCreateDefaultModuleSearchPath (&t_default_search_path))
+		return false;
+	if (!MCScriptSetModuleSearchPath (*t_default_search_path))
+		return false;
+
     return true;
 }
 
