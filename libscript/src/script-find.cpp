@@ -52,6 +52,74 @@ MCScriptGetModuleSearchPath (void)
 ////////////////////////////////////////////////////////////////////////////////
 
 bool
+MCScriptCreateModuleFromSearch (MCNameRef p_name,
+                                MCScriptModuleRef & r_module)
+{
+	MCProperListRef t_search_path;
+	t_search_path = MCScriptGetModuleSearchPath();
+
+	MCAutoDataRef t_module_data;
+	MCAutoStringRef t_module_dir;
+
+	uintptr_t t_iter = 0;
+	MCValueRef t_element = NULL;
+	while (MCProperListIterate (t_search_path, t_iter, t_element))
+	{
+		MCStringRef t_dir = (MCStringRef) t_element;
+
+		/* ---------- Construct candidate filename */
+		/* FIXME there should be a generic function to do this
+		 * filename construction. */
+		MCAutoStringRef t_filename;
+		if (!MCStringMutableCopy (t_dir, &t_filename))
+			return false;
+
+		const char *t_format;
+		if (!MCStringEndsWithCString (*t_filename, (const char_t *) "/",
+		                              kMCStringOptionCompareExact))
+			t_format = "/%@.lcm";
+		else
+			t_format = "%@.lcm";
+
+		if (!MCStringAppendFormat (*t_filename, t_format, p_name))
+			return false;
+
+		/* ---------- Attempt to load the file */
+		/* FIXME this should distinguish between two exceptional
+		 * cases: 1) the file is missing (in which case continue
+		 * searching other directories) and 2) the file is unreadable
+		 * (in which case error). */
+		if (!MCSFileGetContents (*t_filename, &t_module_data))
+		{
+			/* Clear the error and try the next directory */
+			MCAutoErrorRef t_error;
+			MCErrorCatch (&t_error);
+			continue;
+		}
+		else
+		{
+			t_module_dir = t_dir;
+			break;
+		}
+	}
+
+	/* ---------- Create the module */
+	/* If the file exists but isn't usable as a module, then it's
+	 * an error. */
+	MCAutoScriptModuleRef t_module;
+	if (!MCScriptCreateModuleFromData (*t_module_data, &t_module))
+		return false;
+
+	/* FIXME bare modules should get put into a package corresponding
+	 * to the the search directory. */
+
+	r_module = MCScriptRetainModule (*t_module);
+	return r_module;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool
 MCScriptCreateDefaultModuleSearchPath (MCProperListRef & r_directory_list)
 {
 	/* The "compiled-in" default search path is empty,for now. */
