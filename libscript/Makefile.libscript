@@ -29,6 +29,7 @@ SOURCES += \
 	module-type.cpp \
 	module-url.cpp \
 	script-builder.cpp \
+	script-find.cpp \
 	script-instance.cpp \
 	script-module.cpp \
 	script-object.cpp \

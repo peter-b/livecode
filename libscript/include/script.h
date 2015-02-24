@@ -152,6 +152,14 @@ void MCScriptReleasePackage(MCScriptPackageRef package);
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/* Set the list of directories used to search for modules. */
+bool MCScriptSetModuleSearchPath (MCProperListRef p_directory_list);
+
+/* Get the list of directories used to search for modules. */
+MCProperListRef MCScriptGetModuleSearchPath (void);
+
+////////////////////////////////////////////////////////////////////////////////
+
 // Load a module from a stream.
 bool MCScriptCreateModuleFromStream(MCStreamRef stream, MCScriptModuleRef& r_module);
 
