@@ -65,6 +65,7 @@ MCRunUsage (int p_exit_status)
 "Run a compiled Livecode Builder bytecode file.\n"
 "\n"
 "Options:\n"
+"  -L, --modulepath PATH    Add PATH to the front of the module search path.\n"
 "  -H, --handler NAME   Specify name of handler to run.\n"
 "      --list-handlers  List possible entry points in LCMFILE and exit.\n"
 "  -h, --help           Print this message.\n"
@@ -246,6 +247,26 @@ MCRunParseCommandLine (int argc,
 
 				MCValueAssign (x_config.m_handler, *t_handler_name);
 				continue;
+			}
+
+			if (MC_RUN_STRING_EQUAL (t_arg, "--modulepath") ||
+			    MC_RUN_STRING_EQUAL (t_arg, "-L"))
+			{
+				if (NULL == t_argopt)
+					MCRunBadOptionArgError (t_arg, t_argopt);
+
+				++t_arg_idx; /* Consume option argument */
+
+				/* Prepend argument to libscript search path */
+				MCAutoProperListRef t_search_path;
+				if (!MCProperListMutableCopy (MCScriptGetModuleSearchPath(),
+				                              &t_search_path))
+					return false;
+				if (!MCProperListPushElementOntoFront (*t_search_path,
+				                                       t_argopt))
+					return false;
+				if (!MCScriptSetModuleSearchPath (*t_search_path))
+					return false;
 			}
 
 			if (MC_RUN_STRING_EQUAL (t_arg, "--list-handlers"))

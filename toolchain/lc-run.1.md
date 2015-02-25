@@ -25,6 +25,10 @@ the value of `the command arguments`.
 
 ## OPTIONS
 
+* -L, --modulepath _PATH_:
+  Prepend _PATH_ to the list of directories to search for modules and
+  extensions.
+
 * -H, --handler _NAME_:
   Call the handler with the specified _NAME_ as the entry point of the program.
   _NAME_ must have public visibility and accept no arguments.  The default value
