@@ -42,6 +42,20 @@ the value of `the command arguments`.
 * --: Stop processing options.  This is useful in case _LCMFILE_ begins with `-`
   or `--`.
 
+## ENVIRONMENT
+
+* _LC\_MODULE\_PATH_
+  If _LC\_MODULE\_PATH_ is set before **lc-run** is started, its value
+  is used to augment the list of directories to search for LiveCode
+  builder modules and extensions when loading.  It should be list of
+  directories, separated with colons or semicolons.
+
+  By default, the list of directories from _LC\_MODULE\_PATH_ is
+  prefixed to the default module search path.  However, if
+  _LC\_MODULE\_PATH_ contains any empty elements, the first empty
+  element is replaced by the default module search path.  The second
+  and subsequent empty elements are removed.
+
 ## COPYRIGHT
 
 Copyright 2015 LiveCode Ltd.
