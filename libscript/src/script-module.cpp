@@ -17,7 +17,8 @@
 #include <foundation.h>
 #include <foundation-auto.h>
 
-#include "script.h"
+#include <script.h>
+#include <script-auto.h>
 #include "script-private.h"
 
 #include <stddef.h>
@@ -460,6 +461,25 @@ bool MCScriptCreateModuleFromStream(MCStreamRef stream, MCScriptModuleRef& r_mod
     r_module = t_module;
     
     return true;
+}
+
+bool
+MCScriptCreateModuleFromData (MCDataRef data,
+                              MCScriptModuleRef & r_module)
+{
+	MCAutoValueRefBase<MCStreamRef> t_stream;
+	MCAutoScriptModuleRef t_module;
+
+	if (!MCMemoryInputStreamCreate (MCDataGetBytePtr (data),
+	                                MCDataGetLength (data),
+	                                &t_stream))
+		return false;
+
+	if (!MCScriptCreateModuleFromStream (*t_stream, &t_module))
+		return false;
+
+	r_module = MCScriptRetainModule (*t_module);
+	return true;
 }
 
 bool

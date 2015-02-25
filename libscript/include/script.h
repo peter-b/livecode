@@ -155,6 +155,9 @@ void MCScriptReleasePackage(MCScriptPackageRef package);
 // Load a module from a stream.
 bool MCScriptCreateModuleFromStream(MCStreamRef stream, MCScriptModuleRef& r_module);
 
+// Load module from a blob
+bool MCScriptCreateModuleFromData(MCDataRef data, MCScriptModuleRef & r_module);
+
 // Lookup the module with the given name. Returns false if no such module exists.
 bool MCScriptLookupModule(MCNameRef name, MCScriptModuleRef& r_module);
 
