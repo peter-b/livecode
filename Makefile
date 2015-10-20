@@ -66,6 +66,11 @@ guess_platform := $(shell $(guess_platform_script))
 
 all: all-$(guess_platform)
 
+check:
+	$(MAKE) -C tests
+
+.PHONY: all check
+
 ################################################################
 # Linux rules
 ################################################################
