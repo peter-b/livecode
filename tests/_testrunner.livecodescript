@@ -99,9 +99,9 @@ private command doRun pInfo
    put pInfo["args"][2] into tScript
    put pInfo["args"][3] into tCommand
    if tScript is empty then
-      runAllScripts pInfo
+      runAll pInfo
    else if tCommand is empty then
-      runTestScript pInfo, tScript
+      runTestFile pInfo, tScript
    else
       runTestCommand pInfo, tScript, tCommand
    end if
@@ -161,15 +161,14 @@ private function invokeGetLibraryStack pInfo
 end invokeGetLibraryStack
 
 ----------------------------------------------------------------
--- Support for running tests
+-- Support for running tests (general)
 ----------------------------------------------------------------
 
--- Run all the test scripts that can be found below the current
--- directory
-private command runAllScripts pInfo
+-- Run all the tests that can be found below the current directory
+private command runAll pInfo
    local tFile, tAnalysis
    repeat for each element tFile in runGetTestFileNames()
-      runTestScript pInfo, tFile
+      runTestFile pInfo, tFile
       put tapCombine(tAnalysis, the result) into tAnalysis
    end repeat
    runPrintSummary(tAnalysis)
@@ -180,92 +179,29 @@ private command runAllScripts pInfo
    close file kLogFilename
    
    return tAnalysis
-end runAllScripts
+end runAll
 
--- Output a skipped line in the results for eachcommand in the given test file
-private command runTestSkipAll pInfo, pScriptFile, pReason
-   local tSkipTemplate, tAnalysis
-   put "ok - [[tCommand]] # SKIP" && pReason into tSkipTemplate
-
-   repeat for each element tCommand in runGetTestCommandNames(pScriptFile)
-      runTestProcessOutput pScriptFile, tCommand, merge(tSkipTemplate)
-      put tapCombine(tAnalysis, the result) into tAnalysis
-   end repeat
-end runTestSkipAll
-
--- Run the tests found in one specific script file
-private command runTestScript pInfo, pScriptFile
-   local tCommand, tAnalysis, tMetadata
-   put runGetTestMetadata(pScriptFile) into tMetadata
-   
-   -- Only run tests that require UI if possible
-   local tCanRunUITests
-   put true into tCanRunUITests
-   repeat for each element tElement in pInfo["self-command"]
-      if tElement is "-ui" then
-         put false into tCanRunUITests
-         exit repeat
-      end if
-   end repeat
-   
-   if tMetadata["ui"] is true and not tCanRunUITests then
-      runTestSkipAll pInfo, pScriptFile, "test requires UI mode"
-      return the result
+-- Run a test from a specific file
+private command runTestFile pInfo, pFile
+   local tAnalysis
+   if pFile ends with ".livecodescript" then
+      runScriptFile pInfo, pFile
+   else if pFile ends with ".lcb" then
+      runBuilderFile pInfo, pFile
    end if
-   
-   repeat for each element tCommand in runGetTestCommandNames(pScriptFile)
-      runTestCommand pInfo, pScriptFile, tCommand
-      put tapCombine(tAnalysis, the result) into tAnalysis
-   end repeat
-   return tAnalysis
-end runTestScript
+end runTestFile
 
-private command runTestProcessOutput pScriptfile, pCommand, pOutput
-   -- Create test log
-   local tTestLog
-   put "###" && runGetPrettyTestName(pScriptFile) && pCommand \
-         & return & return into tTestLog
-   put pOutput & return after tTestLog
-   
-   -- Analyse the results and print a summary line
-   local tTapResults
-   put tapAnalyse(tTestLog) into tTapResults
-
-   logSummaryLine tTapResults, (runGetPrettyTestName(pScriptFile) & ":" && pCommand)
-   
-   return tTapResults
-end runTestProcessOutput
-
--- Run a specific named test command tCommand in a script file
--- tScriptFile
-private command runTestCommand pInfo, pScriptFile, pCommand
-   local tArg, tCommandLine
-   
-   repeat for each element tArg in pInfo["self-command"]
-      put tArg & " " after tCommandLine
-   end repeat
-   
-   put "invoke" && pScriptFile && pCommand after tCommandLine
-   
-   -- Invoke the test in a subprocess.  This ensures that we can detect
-   -- if a crash occurs
-   local tTestOutput, tTestExitStatus
-   put shell(tCommandLine) into tTestOutput
-   put the result into tTestExitStatus
-   
-   -- Check the exit status.  If it suggests failure, add a "not ok" stanza
-   -- to the tail of the TAP output
-   if tTestExitStatus is not empty then
-      put return after tTestOutput
-      put "not ok # Subprocess exited with status" && \
-            tTestExitStatus & return after tTestOutput
+-- Run a specific named test command tCommand from tFile
+--
+private command runTestCommand pInfo, pFile, pCommand
+   if pFile ends with ".livecodescript" then
+      runScriptCommand pInfo, pFile, pCommand
+   else if pFile ends with ".lcb" then
+      runBuilderCommand pInfo, pFile, pCommand
    end if
-   
-   runTestProcessOutput pScriptFile, pCommand, tTestOutput
-   return the result
 end runTestCommand
 
--- Get all livecode script files beneath the CWD, apart from
+-- Get all testable files beneath the CWD, apart from
 -- filenames starting with "." or "_"
 private function runGetTestFileNames
    local tFiles, tCount
@@ -288,7 +224,7 @@ private command runGetTestFileNames_Recursive pPath, pRelPath, @xFiles, @xCount
    -- Process files in the current directory
    local tFile
    repeat for each line tFile in the files
-      if tFile ends with ".livecodescript" and \
+      if (tFile ends with ".livecodescript" or tFile ends with ".lcb") and \
             not (tFile begins with "." or tFile begins with "_") then
          
          if pRelPath is not empty then
@@ -303,7 +239,7 @@ private command runGetTestFileNames_Recursive pPath, pRelPath, @xFiles, @xCount
    -- Process subdirectories
    local tFolder, tFolderPath
    repeat for each line tFolder in the folders
-      if tFolder begins with "." then
+      if tFolder begins with "." or tFolder begins with "_" then
          next repeat
       end if
       
@@ -320,40 +256,29 @@ private command runGetTestFileNames_Recursive pPath, pRelPath, @xFiles, @xCount
    set the defaultfolder to tSaveFolder
 end runGetTestFileNames_Recursive
 
--- Get a number-indexed array contain the names of all "test"
--- commands in pFilename.
-private function runGetTestCommandNames pFilename
-   local tScript
+private command runTestProcessOutput pScriptfile, pCommand, pOutput
+   -- Create test log
+   local tTestLog
+   put "###" && runGetPrettyTestName(pScriptFile) && pCommand \
+         & return & return into tTestLog
+   put pOutput & return after tTestLog
    
-   -- Get the contents of the file
-   open file pFilename for "UTF-8" text read
-   if the result is not empty then
-      throw the result
-   end if
+   -- Analyse the results and print a summary line
+   local tTapResults
+   put tapAnalyse(tTestLog) into tTapResults
+
+   logSummaryLine tTapResults, (runGetPrettyTestName(pScriptFile) & ":" && pCommand)
    
-   read from file pFilename until end
-   put it into tScript
-   
-   close file pFilename
-   
-   -- Scan the file for "on Test*" definitions
-   local tCommandNames, tCount, tLine
-   
-   repeat for each line tLine in tScript
-      if token 1 of tLine is "on" and token 2 of tLine begins with "Test" then
-         add 1 to tCount
-         put token 2 of tLine into tCommandNames[tCount]
-      end if
-   end repeat
-   
-   return tCommandNames
-end runGetTestCommandNames
+   return tTapResults
+end runTestProcessOutput
 
 -- Prettify a test name by removing a ".livecodescript" suffix
 private function runGetPrettyTestName pFilename
-   if pFilename ends with ".livecodescript" then
+   if pFilename ends with ".livecodescript" or pFileName ends with ".lcb" then
       set the itemDelimiter to "."
       return item 1 to -2 of pFileName
+   else
+      return pFileName
    end if
 end runGetPrettyTestName
 
@@ -410,8 +335,9 @@ private function runGetTestMetadata pFilename
    close file pFilename
    
    -- Scan the file for metadata - 
-   -- Metadata is given in the form ### <key> : <value>
-   
+   -- Metadata is given in either of the following forms:
+   --     ### <key> : <value>
+   --     --### <key> : <value>   
    local tKey, tValue, tMetadata
    repeat for each line tLine in tScript
       -- save some time by only looking at commented out lines
@@ -422,22 +348,134 @@ private function runGetTestMetadata pFilename
       -- remove whitespace
       put word 1 to -1 of tLine into tLine
       
-      if not (tLine begins with "###") then
+      if not (tLine begins with "###" or tLine begins with "--###") then
          next repeat
       end if
       
       -- remove hashes
-      put char 4 to -1 of tLine into tLine
+      put word 2 to -1 of tLine into tLine
       
       set the itemdelimiter to ":"
       put word 1 to -1 of (item 1 of tLine) into tKey
-      put word 1 to -1 of (item 2 of tLine) into tValue
+      put word 1 to -1 of (item 2 to -1 of tLine) into tValue
       
       put tValue into tMetadata[tKey]
    end repeat
    
    return tMetadata
 end runGetTestMetadata
+
+----------------------------------------------------------------
+-- Support for running tests (LiveCode Script)
+----------------------------------------------------------------
+
+-- Output a skipped line in the results for eachcommand in the given test file
+private command runScriptSkipAll pInfo, pScriptFile, pReason
+   local tSkipTemplate, tAnalysis
+   put "ok - [[tCommand]] # SKIP" && pReason into tSkipTemplate
+
+   repeat for each element tCommand in runScriptGetCommandNames(pScriptFile)
+      runTestProcessOutput pScriptFile, tCommand, merge(tSkipTemplate)
+      put tapCombine(tAnalysis, the result) into tAnalysis
+   end repeat
+end runScriptSkipAll
+
+-- Run the tests found in one specific script file
+private command runScriptFile pInfo, pScriptFile
+   local tCommand, tAnalysis, tMetadata
+   put runGetTestMetadata(pScriptFile) into tMetadata
+   
+   -- Only run tests that require UI if possible
+   local tCanRunUITests
+   put true into tCanRunUITests
+   repeat for each element tElement in pInfo["self-command"]
+      if tElement is "-ui" then
+         put false into tCanRunUITests
+         exit repeat
+      end if
+   end repeat
+   
+   if tMetadata["ui"] is true and not tCanRunUITests then
+      runScriptSkipAll pInfo, pScriptFile, "test requires UI mode"
+      return the result
+   end if
+   
+   repeat for each element tCommand in runScriptGetCommandNames(pScriptFile)
+      runScriptCommand pInfo, pScriptFile, tCommand
+      put tapCombine(tAnalysis, the result) into tAnalysis
+   end repeat
+   return tAnalysis
+end runScriptFile
+
+-- Run a specific named test command tCommand in a script file
+-- tScriptFile
+private command runScriptCommand pInfo, pScriptFile, pCommand
+   local tArg, tCommandLine
+   
+   repeat for each element tArg in pInfo["self-command"]
+      put tArg & " " after tCommandLine
+   end repeat
+   
+   put "invoke" && pScriptFile && pCommand after tCommandLine
+   
+   -- Invoke the test in a subprocess.  This ensures that we can detect
+   -- if a crash occurs
+   local tTestOutput, tTestExitStatus
+   put shell(tCommandLine) into tTestOutput
+   put the result into tTestExitStatus
+   
+   -- Check the exit status.  If it suggests failure, add a "not ok" stanza
+   -- to the tail of the TAP output
+   if tTestExitStatus is not empty then
+      put return after tTestOutput
+      put "not ok # Subprocess exited with status" && \
+            tTestExitStatus & return after tTestOutput
+   end if
+   
+   runTestProcessOutput pScriptFile, pCommand, tTestOutput
+   return the result
+end runScriptCommand
+
+-- Get a number-indexed array contain the names of all "test"
+-- commands in pFilename.
+private function runScriptGetCommandNames pFilename
+   local tScript
+   
+   -- Get the contents of the file
+   open file pFilename for "UTF-8" text read
+   if the result is not empty then
+      throw the result
+   end if
+   
+   read from file pFilename until end
+   put it into tScript
+   
+   close file pFilename
+   
+   -- Scan the file for "on Test*" definitions
+   local tCommandNames, tCount, tLine
+   
+   repeat for each line tLine in tScript
+      if token 1 of tLine is "on" and token 2 of tLine begins with "Test" then
+         add 1 to tCount
+         put token 2 of tLine into tCommandNames[tCount]
+      end if
+   end repeat
+   
+   return tCommandNames
+end runScriptGetCommandNames
+
+----------------------------------------------------------------
+-- Support for running tests (LiveCode Builder)
+----------------------------------------------------------------
+
+on runBuilderFile pInfo, pScriptFile
+   
+end runBuilderFile
+
+on runBuilderCommand pInfo, pScriptFile, pCommand
+     
+end runBuilderCommand
 
 ----------------------------------------------------------------
 -- Logging helpers
