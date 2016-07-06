@@ -207,7 +207,7 @@ void MCUuidToBytes(const MCUuid& p_uuid, uint8_t r_bytes[16])
 		r_bytes[10 + i] = p_uuid . node[i];
 }
 
-void MCUuidFromBytes(uint8_t p_bytes[16], MCUuid& r_uuid)
+void MCUuidFromBytes(const uint8_t p_bytes[16], MCUuid& r_uuid)
 {
 	// Unpack the 'time_low' field.
 	r_uuid . time_low = 

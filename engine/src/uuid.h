@@ -64,6 +64,6 @@ bool MCUuidFromCString(const char *string, MCUuid& r_uuid);
 void MCUuidToBytes(const MCUuid& uuid, uint8_t r_bytes[16]);
 
 // Decode a UUID from an endian-invariant sequence of bytes.
-void MCUuidFromBytes(uint8_t bytes[16], MCUuid& r_uuid);
+void MCUuidFromBytes(const uint8_t bytes[16], MCUuid& r_uuid);
 
 #endif
