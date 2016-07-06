@@ -33,6 +33,7 @@
 #include "card.h"
 #include "redraw.h"
 #include "eventqueue.h"
+#include "uuid.h"
 
 #include "dispatch.h"
 #include "notify.h"
@@ -730,6 +731,51 @@ extern "C" MC_DLLEXPORT_DEF void MCEngineExecLogWithValues(MCStringRef p_message
     }
     
     MCEngineExecLog(*t_formatted_message);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+/* ----------------------------------------------------------------
+ * UUID Support
+ * ---------------------------------------------------------------- */
+
+/* FIXME ideally, this should be moved into its own module,
+ * implemented entirely in LCB. */
+
+extern "C" void
+MCEngineEvalDataFormattedAsUuid(MCDataRef p_uuid,
+                                MCStringRef & r_formatted)
+{
+	if (MCDataGetLength(p_uuid) != 16)
+	{
+		MCErrorCreateAndThrow(kMCGenericErrorTypeInfo, "reason", MCSTR("Expected 16-byte UUID data"));
+		return;
+	}
+
+	MCUuid t_uuid;
+	MCUuidFromBytes(reinterpret_cast<const uint8_t *>(MCDataGetBytePtr(p_uuid)),
+	                t_uuid);
+
+	char t_uuid_chars[kMCUuidCStringLength];
+	MCUuidToCString(t_uuid, t_uuid_chars);
+
+	MCStringCreateWithCString(t_uuid_chars, r_formatted);
+	
+}
+
+extern "C" void
+MCEngineEvalRandomUuid(MCDataRef & r_uuid)
+{
+	MCUuid t_uuid;
+	if (!MCUuidGenerateRandom(t_uuid))
+	{
+		MCErrorCreateAndThrow(kMCGenericErrorTypeInfo, "reason", MCSTR("UUID generation failed"), nil);
+		return;
+	}
+
+	MCAutoDataRef t_uuid_data;
+	if (!MCDataCreateWithBytes
 }
 
 ////////////////////////////////////////////////////////////////////////////////

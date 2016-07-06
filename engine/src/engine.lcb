@@ -407,3 +407,22 @@ begin
 end syntax
 
 end module
+
+----------------------------------------------------------------
+-- Basic UUID support
+----------------------------------------------------------------
+
+public foreign handler MCEngineEvalDataFormattedAsUuid(in pUuid as Data, out rFormatted as String) returns nothing binds to "<builtin>"
+public foreign handler MCEngineEvalRandomUuid(out rUuid as Data) returns nothing binds to "<builtin>"
+
+syntax DataFormattedAsUuid is postfix operator with conversion precedence
+	<Operand: Expression> "formatted" "as" "uuid"
+begin
+	MCEngineEvalDataFormattedAsUuid(Operand, output)
+end syntax
+
+syntax RandomUuid is expression
+	"any" "uuid"
+begin
+	MCEngineEvalRandomUuid(output)
+end syntax
